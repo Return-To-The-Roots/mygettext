@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CodeLite_Project Name="mygettext" InternalType="">
+  <Description/>
+  <Dependencies/>
+  <VirtualDirectory Name="src">
+    <File Name="../src/gettext.cpp"/>
+    <File Name="../src/gettext.h"/>
+    <File Name="../src/main.h"/>
+    <File Name="../src/mygettext.cpp"/>
+    <File Name="../src/mygettext.h"/>
+  </VirtualDirectory>
+  <VirtualDirectory Name="include"/>
+  <Settings Type="Static Library">
+    <Configuration Name="Debug" CompilerType="gnu g++" DebuggerType="GNU gdb debugger" Type="Static Library" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
+      <Compiler Options="" Required="yes"/>
+      <Linker Options="" Required="yes"/>
+      <ResourceCompiler Options="" Required="no"/>
+      <General OutputFile="../../libmygettext.a" IntermediateDirectory="Debug" Command="" CommandArguments="" WorkingDirectory="" PauseExecWhenProcTerminates="no"/>
+      <Debugger IsRemote="no" RemoteHostName="" RemoteHostPort="" DebuggerPath="">
+        <PostConnectCommands/>
+        <StartupCommands/>
+      </Debugger>
+      <PreBuild/>
+      <PostBuild/>
+      <CustomBuild Enabled="no">
+        <CleanCommand/>
+        <BuildCommand/>
+        <PreprocessFileCommand/>
+        <SingleFileCommand/>
+        <MakefileGenerationCommand/>
+        <ThirdPartyToolName>None</ThirdPartyToolName>
+        <WorkingDirectory/>
+      </CustomBuild>
+      <AdditionalRules>
+        <CustomPostBuild/>
+        <CustomPreBuild/>
+      </AdditionalRules>
+    </Configuration>
+    <Configuration Name="Release" CompilerType="gnu g++" DebuggerType="GNU gdb debugger" Type="Static Library" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
+      <Compiler Options="" Required="yes"/>
+      <Linker Options="" Required="yes"/>
+      <ResourceCompiler Options="" Required="no"/>
+      <General OutputFile="../../libmygettext.a" IntermediateDirectory="Release" Command="" CommandArguments="" WorkingDirectory="" PauseExecWhenProcTerminates="no"/>
+      <Debugger IsRemote="no" RemoteHostName="" RemoteHostPort="" DebuggerPath="">
+        <PostConnectCommands/>
+        <StartupCommands/>
+      </Debugger>
+      <PreBuild/>
+      <PostBuild/>
+      <CustomBuild Enabled="no">
+        <CleanCommand/>
+        <BuildCommand/>
+        <PreprocessFileCommand/>
+        <SingleFileCommand/>
+        <MakefileGenerationCommand/>
+        <ThirdPartyToolName>None</ThirdPartyToolName>
+        <WorkingDirectory/>
+      </CustomBuild>
+      <AdditionalRules>
+        <CustomPostBuild/>
+        <CustomPreBuild/>
+      </AdditionalRules>
+    </Configuration>
+    <GlobalSettings>
+      <Compiler Options="">
+        <IncludePath Value="."/>
+        <IncludePath Value="../libendian/src/"/>
+      </Compiler>
+      <Linker Options="">
+        <LibraryPath Value="."/>
+      </Linker>
+      <ResourceCompiler Options=""/>
+    </GlobalSettings>
+  </Settings>
+  <Dependencies Name="Release"/>
+  <Dependencies Name="Debug"/>
+</CodeLite_Project>
