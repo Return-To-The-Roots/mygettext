@@ -1,4 +1,4 @@
-// $Id: gettext.cpp 7005 2011-01-27 22:01:07Z FloSoft $
+// $Id: gettext.cpp 7158 2011-04-12 19:28:33Z FloSoft $
 //
 // Copyright (c) 2005 - 2010 Settlers Freaks (sf-team at siedler25.org)
 //
@@ -131,7 +131,7 @@ const char *GetText::get(const char *text)
 
 void GetText::loadCatalog()
 {
-	std::string catalogfile = directory + "/" + locale + ".mo";
+	std::string catalogfile = directory + "/" + this->catalog + "-" + locale + ".mo";
 
 	if(catalogfile == lastcatalog)
 		return;
@@ -139,21 +139,26 @@ void GetText::loadCatalog()
 	FILE *file = fopen(catalogfile.c_str(), "rb");
 	if(!file)
 	{
-		std::string lang = "", region = "";
-
-		std::string::size_type pos = locale.find("_");
-		if(pos != std::string::npos)
-		{
-			lang = locale.substr(0, pos);
-			region = locale.substr(pos+1);
-		}
-
-		catalogfile = directory + "/" + lang + ".mo";
-
-		if(catalogfile == lastcatalog)
-			return;
-
+		catalogfile = directory + "/" + locale + ".mo";
 		file = fopen(catalogfile.c_str(), "rb");
+		if(!file)
+		{		
+			std::string lang = "", region = "";
+	
+			std::string::size_type pos = locale.find("_");
+			if(pos != std::string::npos)
+			{
+				lang = locale.substr(0, pos);
+				region = locale.substr(pos+1);
+			}
+	
+			catalogfile = directory + "/" + lang + ".mo";
+	
+			if(catalogfile == lastcatalog)
+				return;
+	
+			file = fopen(catalogfile.c_str(), "rb");
+		}
 	}
 
 	if(!file)
