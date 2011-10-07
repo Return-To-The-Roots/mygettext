@@ -1,4 +1,4 @@
-// $Id: main.h 7521 2011-09-08 20:45:55Z FloSoft $
+// $Id: main.h 7570 2011-10-07 08:02:50Z FloSoft $
 //
 // Copyright (c) 2005 - 2011 Settlers Freaks (sf-team at siedler25.org)
 //
@@ -21,10 +21,6 @@
 
 #pragma once
 
-#ifdef HAVE_CONFIG_H
-#	include "../config.h"
-#endif // HAVE_CONFIG_H
-
 #ifdef _WIN32
 #	define _CRTDBG_MAP_ALLOC
 #	include <windows.h>
@@ -40,8 +36,6 @@
 #include <cstring>
 #include <string>
 #include <map>
-
-#include <iconv.h>
 
 #include "libendian.h"
 #include "mygettext.h"

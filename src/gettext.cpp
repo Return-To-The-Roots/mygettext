@@ -1,4 +1,4 @@
-// $Id: gettext.cpp 7521 2011-09-08 20:45:55Z FloSoft $
+// $Id: gettext.cpp 7570 2011-10-07 08:02:50Z FloSoft $
 //
 // Copyright (c) 2005 - 2011 Settlers Freaks (sf-team at siedler25.org)
 //
@@ -21,6 +21,8 @@
 // Header
 #include "main.h"
 #include "gettext.h"
+
+#include <iconv.h>
 
 ///////////////////////////////////////////////////////////////////////////////
 // Makros / Defines
