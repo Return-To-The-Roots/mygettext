@@ -1,4 +1,4 @@
-// $Id: gettext.h 7521 2011-09-08 20:45:55Z FloSoft $
+// $Id: gettext.h 7577 2011-10-10 19:25:34Z FloSoft $
 //
 // Copyright (c) 2005 - 2011 Settlers Freaks (sf-team at siedler25.org)
 //
@@ -18,6 +18,8 @@
 // along with Return To The Roots. If not, see <http://www.gnu.org/licenses/>.
 #ifndef GETTEXT_H_INCLUDED
 #define GETTEXT_H_INCLUDED
+
+#include <iconv.h>
 
 #pragma once
 
