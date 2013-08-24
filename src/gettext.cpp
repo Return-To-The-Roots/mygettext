@@ -1,4 +1,4 @@
-// $Id: gettext.cpp 7570 2011-10-07 08:02:50Z FloSoft $
+// $Id: gettext.cpp 8869 2013-08-24 22:02:55Z marcus $
 //
 // Copyright (c) 2005 - 2011 Settlers Freaks (sf-team at siedler25.org)
 //
@@ -94,7 +94,7 @@ const char *GetText::setLocale(const char *locale)
 
 	if(region == "Germany")
 		region = "DE";
-	else if(lang == "United States")
+	else if(region == "United States")
 		region = "EN";
 
 	this->locale = lang;
