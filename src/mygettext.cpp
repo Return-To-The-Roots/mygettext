@@ -1,4 +1,4 @@
-// $Id: mygettext.cpp 7521 2011-09-08 20:45:55Z FloSoft $
+// $Id: mygettext.cpp 9360 2014-04-25 15:45:29Z FloSoft $
 //
 // Copyright (c) 2005 - 2011 Settlers Freaks (sf-team at siedler25.org)
 //
@@ -27,36 +27,36 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Makros / Defines
 #if defined _WIN32 && defined _DEBUG && defined _MSC_VER && defined _MSC_VER
-	#define new new(_NORMAL_BLOCK, THIS_FILE, __LINE__)
-	#undef THIS_FILE
-	static char THIS_FILE[] = __FILE__;
+#define new new(_NORMAL_BLOCK, THIS_FILE, __LINE__)
+#undef THIS_FILE
+static char THIS_FILE[] = __FILE__;
 #endif
 
 static GetText __gettext;
 
-const char *mysetlocale(int category, const char *locale)
+const char* mysetlocale(int category, const char* locale)
 {
-	return __gettext.setLocale(locale);
+    return __gettext.setLocale(locale);
 }
 
-const char *mygettext(const char *msgid)
+const char* mygettext(const char* msgid)
 {
-	return __gettext.get(msgid);
+    return __gettext.get(msgid);
 }
 
-const char *mybindtextdomain(const char *domainname, const char *dirname)
+const char* mybindtextdomain(const char* domainname, const char* dirname)
 {
-	return __gettext.init(domainname, dirname);
+    return __gettext.init(domainname, dirname);
 }
 
-const char *mytextdomain(const char *domainname)
+const char* mytextdomain(const char* domainname)
 {
-	return __gettext.setCatalog(domainname);
+    return __gettext.setCatalog(domainname);
 }
 
-const char *mybind_textdomain_codeset(const char *domainname, const char *codeset)
+const char* mybind_textdomain_codeset(const char* domainname, const char* codeset)
 {
-	return __gettext.setCodepage(codeset);
+    return __gettext.setCodepage(codeset);
 }
 
 

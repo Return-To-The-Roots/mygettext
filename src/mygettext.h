@@ -1,4 +1,4 @@
-// $Id: mygettext.h 7521 2011-09-08 20:45:55Z FloSoft $
+// $Id: mygettext.h 9360 2014-04-25 15:45:29Z FloSoft $
 //
 // Copyright (c) 2005 - 2011 Settlers Freaks (sf-team at siedler25.org)
 //
@@ -21,30 +21,30 @@
 
 #pragma once
 
-const char *mysetlocale(int category, const char *locale);
+const char* mysetlocale(int category, const char* locale);
 
 #undef gettext
 #define gettext mygettext
-const char *mygettext(const char *msgid);
+const char* mygettext(const char* msgid);
 
 #undef bindtextdomain
 #define bindtextdomain mybindtextdomain
-const char *mybindtextdomain(const char *domainname, const char *dirname);
+const char* mybindtextdomain(const char* domainname, const char* dirname);
 
 #undef textdomain
 #define textdomain mytextdomain
-const char *mytextdomain(const char *domainname);
+const char* mytextdomain(const char* domainname);
 
 #undef bind_textdomain_codeset
 #define bind_textdomain_codeset mybind_textdomain_codeset
-const char *mybind_textdomain_codeset(const char *domainname, const char *codeset);
+const char* mybind_textdomain_codeset(const char* domainname, const char* codeset);
 
 #include <string>
 
 const std::string EMPTY_STRING = "";
 
-inline const char * _(const char * const txt) { return gettext(txt); }
-inline const char * _(const std::string& txt) { return gettext(txt.c_str()); }
-inline const char * const gettext_noop(const char * const str) { return str; }
+inline const char* _(const char* const txt) { return gettext(txt); }
+inline const char* _(const std::string& txt) { return gettext(txt.c_str()); }
+inline const char* const gettext_noop(const char* const str) { return str; }
 
 #endif // !MYGETTEXT_H_INCLUDED

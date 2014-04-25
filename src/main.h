@@ -1,4 +1,4 @@
-// $Id: main.h 7570 2011-10-07 08:02:50Z FloSoft $
+// $Id: main.h 9360 2014-04-25 15:45:29Z FloSoft $
 //
 // Copyright (c) 2005 - 2011 Settlers Freaks (sf-team at siedler25.org)
 //
@@ -22,14 +22,14 @@
 #pragma once
 
 #ifdef _WIN32
-#	define _CRTDBG_MAP_ALLOC
-#	include <windows.h>
+#   define _CRTDBG_MAP_ALLOC
+#   include <windows.h>
 
-#	if defined _DEBUG && defined _MSC_VER
-#	include <crtdbg.h>
-#	endif // _DEBUG
+#   if defined _DEBUG && defined _MSC_VER
+#   include <crtdbg.h>
+#   endif // _DEBUG
 #else
-#	include <unistd.h>
+#   include <unistd.h>
 #endif // !_WIN32
 
 #include <cstdio>

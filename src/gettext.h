@@ -1,4 +1,4 @@
-// $Id: gettext.h 7577 2011-10-10 19:25:34Z FloSoft $
+// $Id: gettext.h 9360 2014-04-25 15:45:29Z FloSoft $
 //
 // Copyright (c) 2005 - 2011 Settlers Freaks (sf-team at siedler25.org)
 //
@@ -25,27 +25,27 @@
 
 class GetText
 {
-public:
-	GetText();
-	~GetText();
+    public:
+        GetText();
+        ~GetText();
 
-	const char *init(const char *catalog, const char *directory);
-	const char *get(const char *text);
+        const char* init(const char* catalog, const char* directory);
+        const char* get(const char* text);
 
-	const char *setCatalog(const char *catalog);
-	const char *setLocale(const char *locale);
-	const char *setCodepage(const char *codepage);
+        const char* setCatalog(const char* catalog);
+        const char* setLocale(const char* locale);
+        const char* setCodepage(const char* codepage);
 
-	void loadCatalog();
+        void loadCatalog();
 
-private:
-	std::string catalog;
-	std::string directory;
-	std::string locale;
-	std::string codepage;
-	std::map<std::string, std::string> stack;
-	std::string lastcatalog;
-	iconv_t iconv_cd;
+    private:
+        std::string catalog;
+        std::string directory;
+        std::string locale;
+        std::string codepage;
+        std::map<std::string, std::string> stack;
+        std::string lastcatalog;
+        iconv_t iconv_cd;
 };
 
 #endif // !GETTEXT_H_INCLUDED
