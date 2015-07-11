@@ -2,11 +2,7 @@
 ### $Id: CMakeLists.txt 6942 2010-12-24 07:50:41Z FloSoft $
 #################################################################################
 
-INCLUDE(FindIconv)
-
-IF (NOT Iconv_FOUND)
-	MESSAGE(FATAL_ERROR "libiconv not found")
-ENDIF (NOT Iconv_FOUND)
+FIND_PACKAGE(Iconv REQUIRED)
 
 INCLUDE_DIRECTORIES("${PROJECT_SOURCE_DIR}/libendian/src")
 
