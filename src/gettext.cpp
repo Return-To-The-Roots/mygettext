@@ -237,7 +237,7 @@ void GetText::loadCatalog()
 
         if(iconv_cd != 0)
         {
-#if defined _WIN32 && !defined __CYGWIN__
+#if defined _WIN32 && !defined __CYGWIN__ && false
             const
 #endif
             char* input = value;
