@@ -131,6 +131,13 @@ const char* GetText::get(const char* text)
     return stack[text].c_str();
 }
 
+// There are 2 versions of iconv: One with const char ** as input and one without const
+// This template is used, if const char** version exists
+template<typename T>
+size_t iconv (iconv_t cd, T** inbuf, size_t *inbytesleft, char* * outbuf, size_t *outbytesleft){
+    return iconv(cd, const_cast<const T**>(inbuf), inbytesleft, outbuf, outbytesleft);
+}
+
 void GetText::loadCatalog()
 {
     std::string catalogfile = directory + "/" + this->catalog + "-" + locale + ".mo";
@@ -237,9 +244,6 @@ void GetText::loadCatalog()
 
         if(iconv_cd != 0)
         {
-#if defined _WIN32 && !defined __CYGWIN__ && false
-            const
-#endif
             char* input = value;
             char* output = buffer;
             iconv(iconv_cd, &input, &ilength, &output, &olength);
@@ -256,4 +260,3 @@ void GetText::loadCatalog()
 
     lastcatalog = catalogfile;
 }
-
