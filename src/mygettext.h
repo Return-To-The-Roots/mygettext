@@ -21,6 +21,9 @@
 
 #pragma once
 
+// necessarily here
+#include <locale>
+
 const char* mysetlocale(int category, const char* locale);
 
 #undef gettext
