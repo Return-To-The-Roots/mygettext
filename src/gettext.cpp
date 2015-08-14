@@ -142,7 +142,6 @@ size_t iconv (iconv_t cd, T** inbuf, size_t *inbytesleft, char* * outbuf, size_t
 void GetText::loadCatalog()
 {
     std::string catalogfile = directory + "/" + this->catalog + "-" + locale + ".mo";
-
     if(catalogfile == lastcatalog)
         return;
 
@@ -150,6 +149,9 @@ void GetText::loadCatalog()
     if(!file)
     {
         catalogfile = directory + "/" + locale + ".mo";
+        if(catalogfile == lastcatalog)
+            return;
+
         file = fopen(catalogfile.c_str(), "rb");
         if(!file)
         {
@@ -162,12 +164,19 @@ void GetText::loadCatalog()
                 region = locale.substr(pos + 1);
             }
 
-            catalogfile = directory + "/" + lang + ".mo";
-
+            catalogfile = directory + "/" + this->catalog + "-" + lang + ".mo";
             if(catalogfile == lastcatalog)
                 return;
 
             file = fopen(catalogfile.c_str(), "rb");
+            if(!file)
+            {
+                catalogfile = directory + "/" + lang + ".mo";
+                if(catalogfile == lastcatalog)
+                    return;
+
+                file = fopen(catalogfile.c_str(), "rb");
+            }
         }
     }
 
