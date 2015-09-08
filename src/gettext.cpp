@@ -20,8 +20,10 @@
 #include "main.h"
 #include "gettext.h"
 
+#include <libendian.h> // TODO: Use EndianStream
 #include <iconv.h>
 #include <locale.h>
+#include <vector>
 
 ///////////////////////////////////////////////////////////////////////////////
 // Makros / Defines
@@ -245,17 +247,16 @@ void GetText::loadCatalog()
         if(libendian::le_read_c(value, vlength + 1, file) != (int)vlength + 1)
             return;
 
-        char buffer[10000];
-        std::memset(buffer, 0, 10000);
+        std::vector<char> buffer(10000);
         size_t ilength = vlength;
-        size_t olength = 10000;
+        size_t olength = buffer.size();
 
         if(iconv_cd != 0)
         {
             char* input = value;
-            char* output = buffer;
+            char* output = &buffer.front();
             iconv(iconv_cd, &input, &ilength, &output, &olength);
-            stack[key] = buffer;
+            stack[key] = &buffer.front();
         }
         else
             stack[key] = value;

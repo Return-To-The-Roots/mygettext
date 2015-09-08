@@ -18,6 +18,8 @@
 #define GETTEXT_H_INCLUDED
 
 #include <iconv.h>
+#include <string>
+#include <map>
 
 #pragma once
 
