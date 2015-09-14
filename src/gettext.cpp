@@ -33,58 +33,57 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
-GetText::GetText() : catalog("messages"), directory("/usr/share/locale"), locale("C"), codepage(""), lastcatalog(""), iconv_cd(0)
+GetText::GetText() : catalog_("messages"), directory_("/usr/share/locale"), locale_("C"), codepage_(""), lastcatalog_(""), iconv_cd_(0)
 {
     setCodepage("ISO-8859-1");
 }
 
 GetText::~GetText()
 {
-    iconv_close(iconv_cd);
+    iconv_close(iconv_cd_);
 }
 
 const char* GetText::init(const char* catalog, const char* directory)
 {
-    this->directory = directory;
+    this->directory_ = directory;
 
     return setCatalog(catalog);
 }
 
 const char* GetText::setCatalog(const char* catalog)
 {
-    std::string temp = this->catalog;
-    this->catalog = catalog;
+    this->catalog_ = catalog;
 
-    stack.clear();
-    lastcatalog = "";
+    stack_.clear();
+    lastcatalog_.clear();
 
-    return temp.c_str();
+    return catalog_.c_str();
 }
 
 const char* GetText::setLocale(const char* locale)
 {
     // TODO
-    this->locale = locale;
+    this->locale_ = locale;
 
 #undef setlocale
     const char* nl = ::setlocale(LC_ALL, locale);
     if(nl != NULL)
-        this->locale = nl;
+        this->locale_ = nl;
 
-    stack.clear();
-    lastcatalog = "";
+    stack_.clear();
+    lastcatalog_.clear();
 
-    std::string::size_type pos = this->locale.find(".");
+    std::string::size_type pos = this->locale_.find(".");
     if(pos != std::string::npos)
-        this->locale = this->locale.substr(0, pos);
+        this->locale_ = this->locale_.substr(0, pos);
 
     std::string lang = "", region = "";
 
-    pos = this->locale.find("_");
+    pos = this->locale_.find("_");
     if(pos != std::string::npos)
     {
-        lang = this->locale.substr(0, pos);
-        region = this->locale.substr(pos + 1);
+        lang = this->locale_.substr(0, pos);
+        region = this->locale_.substr(pos + 1);
     }
 
     // todo aliases
@@ -98,38 +97,38 @@ const char* GetText::setLocale(const char* locale)
     else if(region == "United States")
         region = "EN";
 
-    this->locale = lang;
+    this->locale_ = lang;
     if(region.length())
-        this->locale += ( "_" + region);
+        this->locale_ += ( "_" + region);
 
-    return this->locale.c_str();
+    return this->locale_.c_str();
 }
 
 const char* GetText::setCodepage(const char* codepage)
 {
-    this->codepage = codepage;
+    this->codepage_ = codepage;
 
-    if(iconv_cd != 0)
-        iconv_close(iconv_cd);
-    iconv_cd = iconv_open(codepage, "UTF-8");
+    if(iconv_cd_ != 0)
+        iconv_close(iconv_cd_);
+    iconv_cd_ = iconv_open(codepage, "UTF-8");
 
-    return this->codepage.c_str();
+    return this->codepage_.c_str();
 }
 
 const char* GetText::get(const char* text)
 {
     // Wort eintragen falls nicht gefunden
-    if(stack.find(text) == stack.end())
-        stack[text] = text;
+    if(stack_.find(text) == stack_.end())
+        stack_[text] = text;
 
     // do nothing if locale is "C" or "POSIX"
-    if(locale == "C" || locale == "POSIX")
-        return stack[text].c_str();
+    if(locale_ == "C" || locale_ == "POSIX")
+        return stack_[text].c_str();
 
     // Katalog laden
     loadCatalog();
 
-    return stack[text].c_str();
+    return stack_[text].c_str();
 }
 
 // There are 2 versions of iconv: One with const char ** as input and one without const
@@ -141,15 +140,15 @@ size_t iconv (iconv_t cd, T** inbuf, size_t *inbytesleft, char* * outbuf, size_t
 
 void GetText::loadCatalog()
 {
-    std::string catalogfile = directory + "/" + this->catalog + "-" + locale + ".mo";
-    if(catalogfile == lastcatalog)
+    std::string catalogfile = directory_ + "/" + this->catalog_ + "-" + locale_ + ".mo";
+    if(catalogfile == lastcatalog_)
         return;
 
     FILE* file = fopen(catalogfile.c_str(), "rb");
     if(!file)
     {
-        catalogfile = directory + "/" + locale + ".mo";
-        if(catalogfile == lastcatalog)
+        catalogfile = directory_ + "/" + locale_ + ".mo";
+        if(catalogfile == lastcatalog_)
             return;
 
         file = fopen(catalogfile.c_str(), "rb");
@@ -157,22 +156,22 @@ void GetText::loadCatalog()
         {
             std::string lang = "", region = "";
 
-            std::string::size_type pos = locale.find("_");
+            std::string::size_type pos = locale_.find("_");
             if(pos != std::string::npos)
             {
-                lang = locale.substr(0, pos);
-                region = locale.substr(pos + 1);
+                lang = locale_.substr(0, pos);
+                region = locale_.substr(pos + 1);
             }
 
-            catalogfile = directory + "/" + this->catalog + "-" + lang + ".mo";
-            if(catalogfile == lastcatalog)
+            catalogfile = directory_ + "/" + this->catalog_ + "-" + lang + ".mo";
+            if(catalogfile == lastcatalog_)
                 return;
 
             file = fopen(catalogfile.c_str(), "rb");
             if(!file)
             {
-                catalogfile = directory + "/" + lang + ".mo";
-                if(catalogfile == lastcatalog)
+                catalogfile = directory_ + "/" + lang + ".mo";
+                if(catalogfile == lastcatalog_)
                     return;
 
                 file = fopen(catalogfile.c_str(), "rb");
@@ -182,7 +181,7 @@ void GetText::loadCatalog()
 
     if(!file)
     {
-        lastcatalog = catalogfile;
+        lastcatalog_ = catalogfile;
         return;
     }
 
@@ -251,15 +250,15 @@ void GetText::loadCatalog()
         size_t ilength = vlength;
         size_t olength = buffer.size();
 
-        if(iconv_cd != 0)
+        if(iconv_cd_ != 0)
         {
             char* input = value;
             char* output = &buffer.front();
-            iconv(iconv_cd, &input, &ilength, &output, &olength);
-            stack[key] = &buffer.front();
+            iconv(iconv_cd_, &input, &ilength, &output, &olength);
+            stack_[key] = &buffer.front();
         }
         else
-            stack[key] = value;
+            stack_[key] = value;
 
         delete[] key;
         delete[] value;
@@ -267,5 +266,5 @@ void GetText::loadCatalog()
 
     fclose(file);
 
-    lastcatalog = catalogfile;
+    lastcatalog_ = catalogfile;
 }

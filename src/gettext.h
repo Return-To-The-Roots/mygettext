@@ -39,13 +39,13 @@ class GetText
         void loadCatalog();
 
     private:
-        std::string catalog;
-        std::string directory;
-        std::string locale;
-        std::string codepage;
-        std::map<std::string, std::string> stack;
-        std::string lastcatalog;
-        iconv_t iconv_cd;
+        std::string catalog_;
+        std::string directory_;
+        std::string locale_;
+        std::string codepage_;
+        std::map<std::string, std::string> stack_;
+        std::string lastcatalog_;
+        iconv_t iconv_cd_;
 };
 
 #endif // !GETTEXT_H_INCLUDED
