@@ -218,7 +218,8 @@ void GetText::loadCatalog()
     {
         unsigned int klength, vlength;
         unsigned int koffset, voffset;
-        char* key = NULL, *value = NULL;
+        std::vector<char> key;
+        std::vector<char> value;
 
         // Key einlesen
         fseek(file, offsetkeytable + i * 8, SEEK_SET);
@@ -227,10 +228,10 @@ void GetText::loadCatalog()
         if(libendian::le_read_ui(&koffset, file) != 0)
             return;
 
-        key = new char[klength + 1];
+        key.resize(klength + 1);
 
         fseek(file, koffset, SEEK_SET);
-        if(libendian::le_read_c(key, klength + 1, file) != (int)klength + 1)
+        if(libendian::le_read_c(&key.front(), klength + 1, file) != (int)klength + 1)
             return;
 
         // Key einlesen
@@ -240,28 +241,25 @@ void GetText::loadCatalog()
         if(libendian::le_read_ui(&voffset, file) != 0)
             return;
 
-        value = new char[vlength + 1];
+        value.resize(vlength + 1);
 
         fseek(file, voffset, SEEK_SET);
-        if(libendian::le_read_c(value, vlength + 1, file) != (int)vlength + 1)
+        if(libendian::le_read_c(&value.front(), vlength + 1, file) != (int)vlength + 1)
             return;
-
-        std::vector<char> buffer(10000);
-        size_t ilength = vlength;
-        size_t olength = buffer.size();
 
         if(iconv_cd_ != 0)
         {
-            char* input = value;
+            std::vector<char> buffer(10000);
+            size_t ilength = vlength;
+            size_t olength = buffer.size();
+
+            char* input = &value.front();
             char* output = &buffer.front();
             iconv(iconv_cd_, &input, &ilength, &output, &olength);
-            stack_[key] = &buffer.front();
+            stack_[&key.front()] = &buffer.front();
         }
         else
-            stack_[key] = value;
-
-        delete[] key;
-        delete[] value;
+            stack_[&key.front()] = &value.front();
     }
 
     fclose(file);
