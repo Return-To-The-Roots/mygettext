@@ -20,10 +20,15 @@
 #include "main.h"
 #include "gettext.h"
 
-#include <libendian.h> // TODO: Use EndianStream
+#include <EndianStream.h>
+#include <boost/filesystem.hpp>
 #include <iconv.h>
 #include <locale.h>
+#include <stdint.h>
 #include <vector>
+#include <stdexcept>
+
+namespace bfs = boost::filesystem;
 
 ///////////////////////////////////////////////////////////////////////////////
 // Makros / Defines
@@ -33,7 +38,7 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
-GetText::GetText() : catalog_("messages"), directory_("/usr/share/locale"), locale_("C"), codepage_(""), lastcatalog_(""), iconv_cd_(0)
+GetText::GetText() : catalog_("messages"), directory_("/usr/share/locale"), locale_("C"), isLoaded(false), iconv_cd_(0)
 {
     setCodepage("ISO-8859-1");
 }
@@ -52,16 +57,14 @@ const char* GetText::init(const char* catalog, const char* directory)
 
 const char* GetText::setCatalog(const char* catalog)
 {
+    unloadCatalog();
     this->catalog_ = catalog;
-
-    stack_.clear();
-    lastcatalog_.clear();
-
     return catalog_.c_str();
 }
 
 const char* GetText::setLocale(const char* locale)
 {
+    unloadCatalog();
     // TODO
     this->locale_ = locale;
 
@@ -69,9 +72,6 @@ const char* GetText::setLocale(const char* locale)
     const char* nl = ::setlocale(LC_ALL, locale);
     if(nl != NULL)
         this->locale_ = nl;
-
-    stack_.clear();
-    lastcatalog_.clear();
 
     std::string::size_type pos = this->locale_.find(".");
     if(pos != std::string::npos)
@@ -115,20 +115,27 @@ const char* GetText::setCodepage(const char* codepage)
     return this->codepage_.c_str();
 }
 
+void GetText::unloadCatalog()
+{
+    entries_.clear();
+    curCatalogFilePath_.clear();
+    isLoaded = false;
+}
+
 const char* GetText::get(const char* text)
 {
-    // Wort eintragen falls nicht gefunden
-    if(stack_.find(text) == stack_.end())
-        stack_[text] = text;
+    // Load catalog only if locale is not "C" or "POSIX"
+    if(!isLoaded && locale_ != "C" && locale_ != "POSIX")
+        loadCatalog();
 
-    // do nothing if locale is "C" or "POSIX"
-    if(locale_ == "C" || locale_ == "POSIX")
-        return stack_[text].c_str();
-
-    // Katalog laden
-    loadCatalog();
-
-    return stack_[text].c_str();
+    std::map<std::string, std::string>::const_iterator entry = entries_.find(text);
+    if(entry == entries_.end())
+    {
+        // Add if not found
+        entries_[text] = text;
+        return text;
+    }else
+        return entry->second.c_str();
 }
 
 // There are 2 versions of iconv: One with const char ** as input and one without const
@@ -138,131 +145,127 @@ size_t iconv (iconv_t cd, T** inbuf, size_t *inbytesleft, char* * outbuf, size_t
     return iconv(cd, const_cast<const T**>(inbuf), inbytesleft, outbuf, outbytesleft);
 }
 
+std::string GetText::getCatalogFilePath()
+{
+    if(!curCatalogFilePath_.empty())
+        return curCatalogFilePath_;
+
+    std::vector<std::string> possibleFileNames;
+    possibleFileNames.push_back(directory_ + "/" + this->catalog_ + "-" + locale_ + ".mo");
+    possibleFileNames.push_back(directory_ + "/" + locale_ + ".mo");
+    std::string::size_type pos = locale_.find("_");
+    if(pos != std::string::npos)
+    {
+        std::string lang = locale_.substr(0, pos);
+        possibleFileNames.push_back(directory_ + "/" + this->catalog_ + "-" + lang + ".mo");
+        possibleFileNames.push_back(directory_ + "/" + lang + ".mo");
+    }
+
+    for(std::vector<std::string>::const_iterator it = possibleFileNames.begin(); it != possibleFileNames.end(); ++it)
+    {
+        if(bfs::exists(*it))
+        {
+            curCatalogFilePath_ = *it;
+            break;
+        }
+    }
+    return curCatalogFilePath_;
+}
+
+struct CatalogEntryDescriptor
+{
+    uint32_t keyLen, keyOffset;
+    uint32_t valueLen, valueOffset;
+    std::string key;
+};
+
 void GetText::loadCatalog()
 {
-    std::string catalogfile = directory_ + "/" + this->catalog_ + "-" + locale_ + ".mo";
-    if(catalogfile == lastcatalog_)
+    if(isLoaded)
         return;
 
-    FILE* file = fopen(catalogfile.c_str(), "rb");
-    if(!file)
-    {
-        catalogfile = directory_ + "/" + locale_ + ".mo";
-        if(catalogfile == lastcatalog_)
-            return;
+    const std::string catalogfile = getCatalogFilePath();
 
-        file = fopen(catalogfile.c_str(), "rb");
+    // Try loading only once even when this fails, as it is unlikely to succeed on another time
+    isLoaded = true;
+
+    try
+    {
+        libendian::EndianIStream<false> file(catalogfile);
+
         if(!file)
+            return;
+
+        uint32_t magic; // magic number = 0x950412de
+        file >> magic;
+        if(magic != 0x950412de)
+            return;
+
+        uint32_t revision; // file format revision = 0
+        uint32_t count; // number of strings
+        uint32_t offsetKeyTable; // offset of table with original strings
+        uint32_t offsetValueTable; // offset of table with translation strings
+        uint32_t sizeHashTable; // size of hashing table
+        uint32_t offsetHashTable; // offset of hashing table
+
+        file >> revision >> count >> offsetKeyTable >> offsetValueTable >> sizeHashTable >> offsetHashTable;
+
+        //entries_.clear();
+
+        //Read the descriptors first as they are at contigous positions in the file
+        std::vector<CatalogEntryDescriptor> entryDescriptors(count);
+
+        file.setPosition(offsetKeyTable);
+        for(std::vector<CatalogEntryDescriptor>::iterator it = entryDescriptors.begin(); it != entryDescriptors.end(); ++it)
         {
-            std::string lang = "", region = "";
-
-            std::string::size_type pos = locale_.find("_");
-            if(pos != std::string::npos)
-            {
-                lang = locale_.substr(0, pos);
-                region = locale_.substr(pos + 1);
-            }
-
-            catalogfile = directory_ + "/" + this->catalog_ + "-" + lang + ".mo";
-            if(catalogfile == lastcatalog_)
-                return;
-
-            file = fopen(catalogfile.c_str(), "rb");
-            if(!file)
-            {
-                catalogfile = directory_ + "/" + lang + ".mo";
-                if(catalogfile == lastcatalog_)
-                    return;
-
-                file = fopen(catalogfile.c_str(), "rb");
-            }
+            file >> it->keyLen >> it->keyOffset;
+            ++it->keyLen; // Terminating zero
         }
-    }
-
-    if(!file)
-    {
-        lastcatalog_ = catalogfile;
-        return;
-    }
-
-    unsigned int magic; // magic number = 0x950412de
-    if(libendian::be_read_ui(&magic, file) != 0)
-        return;
-    if(magic != 0xDE120495)
-        return;
-
-    unsigned int revision; // file format revision = 0
-    if(libendian::le_read_ui(&revision, file) != 0)
-        return;
-
-    unsigned int count; // number of strings
-    if(libendian::le_read_ui(&count, file) != 0)
-        return;
-
-    unsigned int offsetkeytable; // offset of table with original strings
-    if(libendian::le_read_ui(&offsetkeytable, file) != 0)
-        return;
-    unsigned int offsetvaluetable; // offset of table with translation strings
-    if(libendian::le_read_ui(&offsetvaluetable, file) != 0)
-        return;
-    unsigned int sizehashtable; // size of hashing table
-    if(libendian::le_read_ui(&sizehashtable, file) != 0)
-        return;
-    unsigned int offsethashtable; // offset of hashing table
-    if(libendian::le_read_ui(&offsethashtable, file) != 0)
-        return;
-
-    //stack.clear();
-
-    for(unsigned int i = 0; i < count; ++i)
-    {
-        unsigned int klength, vlength;
-        unsigned int koffset, voffset;
-        std::vector<char> key;
-        std::vector<char> value;
-
-        // Key einlesen
-        fseek(file, offsetkeytable + i * 8, SEEK_SET);
-        if(libendian::le_read_ui(&klength, file) != 0)
-            return;
-        if(libendian::le_read_ui(&koffset, file) != 0)
-            return;
-
-        key.resize(klength + 1);
-
-        fseek(file, koffset, SEEK_SET);
-        if(libendian::le_read_c(&key.front(), klength + 1, file) != (int)klength + 1)
-            return;
-
-        // Key einlesen
-        fseek(file, offsetvaluetable + i * 8, SEEK_SET);
-        if(libendian::le_read_ui(&vlength, file) != 0)
-            return;
-        if(libendian::le_read_ui(&voffset, file) != 0)
-            return;
-
-        value.resize(vlength + 1);
-
-        fseek(file, voffset, SEEK_SET);
-        if(libendian::le_read_c(&value.front(), vlength + 1, file) != (int)vlength + 1)
-            return;
-
-        if(iconv_cd_ != 0)
+        file.setPosition(offsetValueTable);
+        for(std::vector<CatalogEntryDescriptor>::iterator it = entryDescriptors.begin(); it != entryDescriptors.end(); ++it)
         {
-            std::vector<char> buffer(10000);
-            size_t ilength = vlength;
-            size_t olength = buffer.size();
-
-            char* input = &value.front();
-            char* output = &buffer.front();
-            iconv(iconv_cd_, &input, &ilength, &output, &olength);
-            stack_[&key.front()] = &buffer.front();
+            file >> it->valueLen >> it->valueOffset;
+            ++it->valueLen; // Terminating zero
         }
-        else
-            stack_[&key.front()] = &value.front();
-    }
 
-    fclose(file);
+        // Declare those outside of the loop to avoid reallocating the memory at every iteration
+        std::vector<char> readBuffer;
+        std::vector<char> iconvBuffer;
 
-    lastcatalog_ = catalogfile;
+        // Keys and values are most probably contigous. So read them at once
+        for(std::vector<CatalogEntryDescriptor>::iterator it = entryDescriptors.begin(); it != entryDescriptors.end(); ++it)
+        {
+            readBuffer.resize(it->keyLen);
+
+            file.setPosition(it->keyOffset);
+            file.read(&readBuffer.front(), it->keyLen);
+            it->key = &readBuffer.front();
+        }
+
+        for(std::vector<CatalogEntryDescriptor>::iterator it = entryDescriptors.begin(); it != entryDescriptors.end(); ++it)
+        {
+            readBuffer.resize(it->valueLen);
+
+            file.setPosition(it->valueOffset);
+            file.read(&readBuffer.front(), it->valueLen);
+
+            if(iconv_cd_ != 0)
+            {
+                iconvBuffer.resize(it->valueLen * 6); // UTF needs at most 6 times the size per char, so this should be enough
+                size_t ilength = it->valueLen - 1; // Don't count terminating zero
+                size_t olength = iconvBuffer.size();
+
+                char* input = &readBuffer.front();
+                char* output = &iconvBuffer.front();
+                iconv(iconv_cd_, &input, &ilength, &output, &olength);
+                if(static_cast<size_t>(output - &iconvBuffer.front()) >= iconvBuffer.size())
+                    throw std::runtime_error("Buffer overflow detected!"); // Should never happen due to the size given
+                *output = 0; // Terminator
+                entries_[it->key] = &iconvBuffer.front();
+            }
+            else
+                entries_[it->key] = &readBuffer.front();
+        }
+    }catch(std::exception)
+    {}
 }
