@@ -39,12 +39,16 @@ class GetText
         void loadCatalog();
 
     private:
+        void unloadCatalog();
+        std::string getCatalogFilePath();
+
         std::string catalog_;
         std::string directory_;
         std::string locale_;
         std::string codepage_;
-        std::map<std::string, std::string> stack_;
-        std::string lastcatalog_;
+        std::map<std::string, std::string> entries_;
+        std::string curCatalogFilePath_;
+        bool isLoaded;
         iconv_t iconv_cd_;
 };
 
