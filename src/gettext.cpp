@@ -261,6 +261,6 @@ void GetText::loadCatalog()
             else
                 entries_[it->key] = &readBuffer.front();
         }
-    }catch(std::exception)
-    {}
+    }catch(std::exception&)
+    {} //-V565
 }
