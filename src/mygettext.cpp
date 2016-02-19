@@ -17,13 +17,13 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 // Header
-#include "main.h"
+#include "main.h" // IWYU pragma: keep
 #include "mygettext.h"
 
 #include "gettext.h"
 
 // Include last!
-#include "DebugNew.h"
+#include "DebugNew.h" // IWYU pragma: keep
 
 static GetText __gettext;
 

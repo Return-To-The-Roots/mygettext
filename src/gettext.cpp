@@ -17,7 +17,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 // Header
-#include "main.h"
+#include "main.h" // IWYU pragma: keep
 #include "gettext.h"
 
 #include <EndianStream.h>
@@ -31,7 +31,7 @@
 namespace bfs = boost::filesystem;
 
 // Include last!
-#include "DebugNew.h"
+#include "DebugNew.h" // IWYU pragma: keep
 
 GetText::GetText() : catalog_("messages"), directory_("/usr/share/locale"), locale_("C"), isLoaded(false), iconv_cd_(0)
 {
