@@ -27,6 +27,9 @@
 #include <stdint.h>
 #include <vector>
 #include <stdexcept>
+#include <cstddef>
+#include <exception>
+#include <utility>
 
 namespace bfs = boost::filesystem;
 
