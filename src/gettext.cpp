@@ -71,13 +71,13 @@ const char* GetText::setLocale(const char* locale)
     if(nl != NULL)
         this->locale_ = nl;
 
-    std::string::size_type pos = this->locale_.find(".");
+    std::string::size_type pos = this->locale_.find('.');
     if(pos != std::string::npos)
         this->locale_ = this->locale_.substr(0, pos);
 
     std::string lang = "", region = "";
 
-    pos = this->locale_.find("_");
+    pos = this->locale_.find('_');
     if(pos != std::string::npos)
     {
         lang = this->locale_.substr(0, pos);
@@ -151,7 +151,7 @@ std::string GetText::getCatalogFilePath()
     std::vector<std::string> possibleFileNames;
     possibleFileNames.push_back(directory_ + "/" + this->catalog_ + "-" + locale_ + ".mo");
     possibleFileNames.push_back(directory_ + "/" + locale_ + ".mo");
-    std::string::size_type pos = locale_.find("_");
+    std::string::size_type pos = locale_.find('_');
     if(pos != std::string::npos)
     {
         std::string lang = locale_.substr(0, pos);
