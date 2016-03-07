@@ -27,7 +27,7 @@
 
 static GetText __gettext;
 
-const char* mysetlocale(int category, const char* locale)
+const char* mysetlocale(int  /*category*/, const char* locale)
 {
     return __gettext.setLocale(locale);
 }
@@ -47,7 +47,7 @@ const char* mytextdomain(const char* domainname)
     return __gettext.setCatalog(domainname);
 }
 
-const char* mybind_textdomain_codeset(const char* domainname, const char* codeset)
+const char* mybind_textdomain_codeset(const char*  /*domainname*/, const char* codeset)
 {
     return __gettext.setCodepage(codeset);
 }
