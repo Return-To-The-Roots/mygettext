@@ -23,7 +23,7 @@
 #include <EndianStream.h>
 #include <boost/filesystem.hpp>
 #include <iconv.h>
-#include <locale.h>
+#include <clocale>
 #include <stdint.h>
 #include <vector>
 #include <stdexcept>
