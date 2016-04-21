@@ -31,9 +31,6 @@
 
 namespace bfs = boost::filesystem;
 
-// Include last!
-#include "DebugNew.h" // IWYU pragma: keep
-
 GetText::GetText() : catalog_("messages"), directory_("/usr/share/locale"), locale_("C"), isLoaded(false), iconv_cd_(0)
 {
     setCodepage("ISO-8859-1");

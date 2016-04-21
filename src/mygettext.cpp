@@ -20,9 +20,6 @@
 
 #include "gettext.h"
 
-// Include last!
-#include "DebugNew.h" // IWYU pragma: keep
-
 static GetText __gettext;
 
 const char* mysetlocale(int  /*category*/, const char* locale)
