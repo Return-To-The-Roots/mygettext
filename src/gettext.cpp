@@ -18,7 +18,7 @@
 #include "mygettextDefines.h" // IWYU pragma: keep
 #include "gettext.h"
 
-#include "libendian/src/EndianStream.h"
+#include "libendian/src/EndianIStreamAdapter.h"
 #include <boost/filesystem.hpp>
 #include <iconv.h>
 #include <clocale>
@@ -184,7 +184,7 @@ void GetText::loadCatalog()
 
     try
     {
-        libendian::EndianIStream<false> file(catalogfile);
+        libendian::EndianIStreamAdapter<false, bfs::ifstream> file(catalogfile);
 
         if(!file)
             return;
