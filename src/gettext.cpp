@@ -20,6 +20,7 @@
 
 #include "libendian/src/EndianIStreamAdapter.h"
 #include <boost/filesystem.hpp>
+#include <boost/filesystem/fstream.hpp>
 #include <iconv.h>
 #include <clocale>
 #include <stdint.h>
