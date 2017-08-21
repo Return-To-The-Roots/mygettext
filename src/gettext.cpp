@@ -185,7 +185,7 @@ void GetText::loadCatalog()
 
     try
     {
-        libendian::EndianIStreamAdapter<false, bfs::ifstream> file(catalogfile);
+        libendian::EndianIStreamAdapter<false, bfs::ifstream> file(catalogfile, std::ios::binary);
 
         if(!file)
             return;
