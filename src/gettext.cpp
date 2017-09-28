@@ -18,7 +18,7 @@
 #include "mygettextDefines.h" // IWYU pragma: keep
 #include "gettext.h"
 
-#include "libendian/src/EndianIStreamAdapter.h"
+#include "libendian/EndianIStreamAdapter.h"
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
 #include <iconv.h>

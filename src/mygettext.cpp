@@ -17,7 +17,6 @@
 
 #include "mygettextDefines.h" // IWYU pragma: keep
 #include "mygettext.h"
-
 #include "gettext.h"
 
 static GetText __gettext;
