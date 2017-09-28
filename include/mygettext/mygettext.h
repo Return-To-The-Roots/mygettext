@@ -45,9 +45,18 @@ const char* mybind_textdomain_codeset(const char* domainname, const char* codese
 const std::string EMPTY_STRING = "";
 
 /// Return translated text for given message (or unmodified text if not found)
-inline const char* _(const char* const txt) { return gettext(txt); }
-inline const char* _(const std::string& txt) { return gettext(txt.c_str()); }
+inline const char* _(const char* const txt)
+{
+    return gettext(txt);
+}
+inline const char* _(const std::string& txt)
+{
+    return gettext(txt.c_str());
+}
 /// Return unmodified string (used when translation is done at other place (e.g. string constants)
-inline const char* const gettext_noop(const char* const str) { return str; }
+inline const char* const gettext_noop(const char* const str)
+{
+    return str;
+}
 
 #endif // !MYGETTEXT_H_INCLUDED

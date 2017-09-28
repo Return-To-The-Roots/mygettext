@@ -17,18 +17,17 @@
 
 #include "mygettextDefines.h" // IWYU pragma: keep
 #include "gettext.h"
-
 #include "libendian/EndianIStreamAdapter.h"
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
-#include <iconv.h>
 #include <clocale>
-#include <stdint.h>
-#include <vector>
-#include <stdexcept>
 #include <cstddef>
 #include <exception>
+#include <iconv.h>
+#include <stdexcept>
+#include <stdint.h>
 #include <utility>
+#include <vector>
 
 namespace bfs = boost::filesystem;
 
@@ -93,7 +92,7 @@ const char* GetText::setLocale(const char* locale)
 
     this->locale_ = lang;
     if(region.length())
-        this->locale_ += ( "_" + region);
+        this->locale_ += ("_" + region);
 
     return this->locale_.c_str();
 }
@@ -128,14 +127,15 @@ const char* GetText::get(const char* text)
         // Add if not found
         entries_[text] = text;
         return text;
-    }else
+    } else
         return entry->second.c_str();
 }
 
 // There are 2 versions of iconv: One with const char ** as input and one without const
 // This template is used, if const char** version exists
 template<typename T>
-size_t iconv (iconv_t cd, T** inbuf, size_t *inbytesleft, char* * outbuf, size_t *outbytesleft){
+size_t iconv(iconv_t cd, T** inbuf, size_t* inbytesleft, char** outbuf, size_t* outbytesleft)
+{
     return iconv(cd, const_cast<const T**>(inbuf), inbytesleft, outbuf, outbytesleft);
 }
 
@@ -195,18 +195,18 @@ void GetText::loadCatalog()
         if(magic != 0x950412de)
             return;
 
-        uint32_t revision; // file format revision = 0
-        uint32_t count; // number of strings
-        uint32_t offsetKeyTable; // offset of table with original strings
+        uint32_t revision;         // file format revision = 0
+        uint32_t count;            // number of strings
+        uint32_t offsetKeyTable;   // offset of table with original strings
         uint32_t offsetValueTable; // offset of table with translation strings
-        uint32_t sizeHashTable; // size of hashing table
-        uint32_t offsetHashTable; // offset of hashing table
+        uint32_t sizeHashTable;    // size of hashing table
+        uint32_t offsetHashTable;  // offset of hashing table
 
         file >> revision >> count >> offsetKeyTable >> offsetValueTable >> sizeHashTable >> offsetHashTable;
 
-        //entries_.clear();
+        // entries_.clear();
 
-        //Read the descriptors first as they are at contigous positions in the file
+        // Read the descriptors first as they are at contigous positions in the file
         std::vector<CatalogEntryDescriptor> entryDescriptors(count);
 
         file.setPosition(offsetKeyTable);
@@ -246,7 +246,7 @@ void GetText::loadCatalog()
             if(iconv_cd_ != 0)
             {
                 iconvBuffer.resize(it->valueLen * 6); // UTF needs at most 6 times the size per char, so this should be enough
-                size_t ilength = it->valueLen - 1; // Don't count terminating zero
+                size_t ilength = it->valueLen - 1;    // Don't count terminating zero
                 size_t olength = iconvBuffer.size();
 
                 char* input = &readBuffer.front();
@@ -254,12 +254,12 @@ void GetText::loadCatalog()
                 iconv(iconv_cd_, &input, &ilength, &output, &olength);
                 if(static_cast<size_t>(output - &iconvBuffer.front()) >= iconvBuffer.size())
                     throw std::runtime_error("Buffer overflow detected!"); // Should never happen due to the size given
-                *output = 0; // Terminator
+                *output = 0;                                               // Terminator
                 entries_[it->key] = &iconvBuffer.front();
-            }
-            else
+            } else
                 entries_[it->key] = &readBuffer.front();
         }
-    }catch(std::exception&)
-    {} //-V565
+    } catch(std::exception&)
+    {
+    } //-V565
 }

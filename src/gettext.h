@@ -18,39 +18,38 @@
 #define GETTEXT_H_INCLUDED
 
 #include <iconv.h>
-#include <string>
 #include <map>
+#include <string>
 
 #pragma once
 
 class GetText
 {
-    public:
-        GetText();
-        ~GetText();
+public:
+    GetText();
+    ~GetText();
 
-        const char* init(const char* catalog, const char* directory);
-        const char* get(const char* text);
+    const char* init(const char* catalog, const char* directory);
+    const char* get(const char* text);
 
-        const char* setCatalog(const char* catalog);
-        const char* setLocale(const char* locale);
-        const char* setCodepage(const char* codepage);
+    const char* setCatalog(const char* catalog);
+    const char* setLocale(const char* locale);
+    const char* setCodepage(const char* codepage);
 
-        void loadCatalog();
+    void loadCatalog();
 
-    private:
-        void unloadCatalog();
-        std::string getCatalogFilePath();
+private:
+    void unloadCatalog();
+    std::string getCatalogFilePath();
 
-        std::string catalog_;
-        std::string directory_;
-        std::string locale_;
-        std::string codepage_;
-        std::map<std::string, std::string> entries_;
-        std::string curCatalogFilePath_;
-        bool isLoaded;
-        iconv_t iconv_cd_;
+    std::string catalog_;
+    std::string directory_;
+    std::string locale_;
+    std::string codepage_;
+    std::map<std::string, std::string> entries_;
+    std::string curCatalogFilePath_;
+    bool isLoaded;
+    iconv_t iconv_cd_;
 };
 
 #endif // !GETTEXT_H_INCLUDED
-
