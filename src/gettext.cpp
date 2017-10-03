@@ -19,7 +19,7 @@
 #include "gettext.h"
 #include "libendian/EndianIStreamAdapter.h"
 #include <boost/filesystem.hpp>
-#include <boost/filesystem/fstream.hpp>
+#include <boost/nowide/fstream.hpp>
 #include <clocale>
 #include <cstddef>
 #include <exception>
@@ -185,7 +185,7 @@ void GetText::loadCatalog()
 
     try
     {
-        libendian::EndianIStreamAdapter<false, bfs::ifstream> file(catalogfile, std::ios::binary);
+        libendian::EndianIStreamAdapter<false, boost::nowide::ifstream> file(catalogfile, std::ios::binary);
 
         if(!file)
             return;
