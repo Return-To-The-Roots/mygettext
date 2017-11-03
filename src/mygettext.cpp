@@ -33,7 +33,7 @@ const char* mygettext(const char* msgid)
 
 const char* mybindtextdomain(const char* domainname, const char* dirname)
 {
-    return __gettext.init(domainname, dirname);
+    return __gettext.setCatalogDir(domainname, dirname);
 }
 
 const char* mytextdomain(const char* domainname)

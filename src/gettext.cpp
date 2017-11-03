@@ -31,8 +31,11 @@
 
 namespace bfs = boost::filesystem;
 
-GetText::GetText() : catalog_("messages"), directory_("/usr/share/locale"), locale_("C"), isLoaded(false), iconv_cd_(0)
+GetText::GetText() : isLoaded(false), iconv_cd_(0)
 {
+    setCatalogDir("messages", "/usr/share/locale");
+    setCatalog("messages");
+    setLocale("C");
     setCodepage("ISO-8859-1");
 }
 
@@ -41,42 +44,54 @@ GetText::~GetText()
     iconv_close(iconv_cd_);
 }
 
-const char* GetText::init(const char* catalog, const char* directory)
+const char* GetText::setCatalogDir(const char* catalog, const char* directory)
 {
-    this->directory_ = directory;
-
-    return setCatalog(catalog);
+    if(!catalog)
+        return NULL;
+    if(directory)
+    {
+        catalogDirs_[catalog] = directory;
+        if(catalog == catalog_)
+            unloadCatalog();
+    }
+    return catalogDirs_[catalog].c_str();
 }
 
 const char* GetText::setCatalog(const char* catalog)
 {
-    unloadCatalog();
-    this->catalog_ = catalog;
+    if(catalog)
+    {
+        unloadCatalog();
+        catalog_ = catalog;
+    }
     return catalog_.c_str();
 }
 
 const char* GetText::setLocale(const char* locale)
 {
+    if(!locale)
+        return locale_.c_str();
+
     unloadCatalog();
     // TODO
-    this->locale_ = locale;
+    locale_ = locale;
 
 #undef setlocale
     const char* nl = ::setlocale(LC_ALL, locale);
     if(nl != NULL)
-        this->locale_ = nl;
+        locale_ = nl;
 
-    std::string::size_type pos = this->locale_.find('.');
+    std::string::size_type pos = locale_.find('.');
     if(pos != std::string::npos)
-        this->locale_ = this->locale_.substr(0, pos);
+        locale_ = locale_.substr(0, pos);
 
     std::string lang = "", region = "";
 
-    pos = this->locale_.find('_');
+    pos = locale_.find('_');
     if(pos != std::string::npos)
     {
-        lang = this->locale_.substr(0, pos);
-        region = this->locale_.substr(pos + 1);
+        lang = locale_.substr(0, pos);
+        region = locale_.substr(pos + 1);
     }
 
     // todo aliases
@@ -90,28 +105,30 @@ const char* GetText::setLocale(const char* locale)
     else if(region == "United States")
         region = "EN";
 
-    this->locale_ = lang;
+    locale_ = lang;
     if(region.length())
-        this->locale_ += ("_" + region);
+        locale_ += ("_" + region);
 
-    return this->locale_.c_str();
+    return locale_.c_str();
 }
 
 const char* GetText::setCodepage(const char* codepage)
 {
-    this->codepage_ = codepage;
+    if(codepage)
+    {
+        codepage_ = codepage;
 
-    if(iconv_cd_ != 0)
-        iconv_close(iconv_cd_);
-    iconv_cd_ = iconv_open(codepage, "UTF-8");
+        if(iconv_cd_ != 0)
+            iconv_close(iconv_cd_);
+        iconv_cd_ = iconv_open(codepage, "UTF-8");
+    }
 
-    return this->codepage_.c_str();
+    return codepage_.c_str();
 }
 
 void GetText::unloadCatalog()
 {
     entries_.clear();
-    curCatalogFilePath_.clear();
     isLoaded = false;
 }
 
@@ -141,29 +158,28 @@ size_t iconv(iconv_t cd, T** inbuf, size_t* inbytesleft, char** outbuf, size_t* 
 
 std::string GetText::getCatalogFilePath()
 {
-    if(!curCatalogFilePath_.empty())
-        return curCatalogFilePath_;
+    std::string baseDir = catalogDirs_[catalog_];
 
     std::vector<std::string> possibleFileNames;
-    possibleFileNames.push_back(directory_ + "/" + this->catalog_ + "-" + locale_ + ".mo");
-    possibleFileNames.push_back(directory_ + "/" + locale_ + ".mo");
+    // Default path: dirname/locale/category/domainname.mo
+    possibleFileNames.push_back(baseDir + "/" + locale_ + "/LC_MESSAGES/" + catalog_ + ".mo");
+    // Our extensions
+    possibleFileNames.push_back(baseDir + "/" + catalog_ + "-" + locale_ + ".mo");
+    possibleFileNames.push_back(baseDir + "/" + locale_ + ".mo");
     std::string::size_type pos = locale_.find('_');
     if(pos != std::string::npos)
     {
         std::string lang = locale_.substr(0, pos);
-        possibleFileNames.push_back(directory_ + "/" + this->catalog_ + "-" + lang + ".mo");
-        possibleFileNames.push_back(directory_ + "/" + lang + ".mo");
+        possibleFileNames.push_back(baseDir + "/" + catalog_ + "-" + lang + ".mo");
+        possibleFileNames.push_back(baseDir + "/" + lang + ".mo");
     }
 
     for(std::vector<std::string>::const_iterator it = possibleFileNames.begin(); it != possibleFileNames.end(); ++it)
     {
         if(bfs::exists(*it))
-        {
-            curCatalogFilePath_ = *it;
-            break;
-        }
+            return *it;
     }
-    return curCatalogFilePath_;
+    return "";
 }
 
 struct CatalogEntryDescriptor
@@ -182,6 +198,10 @@ void GetText::loadCatalog()
 
     // Try loading only once even when this fails, as it is unlikely to succeed on another time
     isLoaded = true;
+
+    // No catalog
+    if(catalogfile.empty())
+        return;
 
     try
     {

@@ -29,7 +29,7 @@ public:
     GetText();
     ~GetText();
 
-    const char* init(const char* catalog, const char* directory);
+    const char* setCatalogDir(const char* catalog, const char* directory);
     const char* get(const char* text);
 
     const char* setCatalog(const char* catalog);
@@ -42,12 +42,11 @@ private:
     void unloadCatalog();
     std::string getCatalogFilePath();
 
+    std::map<std::string, std::string> catalogDirs_;
     std::string catalog_;
-    std::string directory_;
     std::string locale_;
     std::string codepage_;
     std::map<std::string, std::string> entries_;
-    std::string curCatalogFilePath_;
     bool isLoaded;
     iconv_t iconv_cd_;
 };
