@@ -21,6 +21,7 @@
 
 // necessarily here
 #include <locale>
+#include <string>
 
 const char* mysetlocale(int category, const char* locale);
 
@@ -40,9 +41,7 @@ const char* mytextdomain(const char* domainname);
 #define bind_textdomain_codeset mybind_textdomain_codeset
 const char* mybind_textdomain_codeset(const char* domainname, const char* codeset);
 
-#include <string>
-
-const std::string EMPTY_STRING = "";
+void splitLanguageCode(const std::string& code, std::string& lang, std::string& region, std::string& encoding);
 
 /// Return translated text for given message (or unmodified text if not found)
 inline const char* _(const char* const txt)

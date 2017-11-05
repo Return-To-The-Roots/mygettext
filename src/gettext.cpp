@@ -17,13 +17,12 @@
 
 #include "mygettextDefines.h" // IWYU pragma: keep
 #include "gettext.h"
+#include "mygettext.h"
 #include "libendian/EndianIStreamAdapter.h"
 #include <boost/filesystem.hpp>
 #include <boost/nowide/fstream.hpp>
 #include <clocale>
 #include <cstddef>
-#include <exception>
-#include <iconv.h>
 #include <stdexcept>
 #include <stdint.h>
 #include <utility>
@@ -41,7 +40,8 @@ GetText::GetText() : isLoaded(false), iconv_cd_(0)
 
 GetText::~GetText()
 {
-    iconv_close(iconv_cd_);
+    if(iconv_cd_)
+        iconv_close(iconv_cd_);
 }
 
 const char* GetText::setCatalogDir(const char* catalog, const char* directory)
@@ -69,46 +69,18 @@ const char* GetText::setCatalog(const char* catalog)
 
 const char* GetText::setLocale(const char* locale)
 {
-    if(!locale)
-        return locale_.c_str();
-
-    unloadCatalog();
-    // TODO
-    locale_ = locale;
+    if(locale)
+    {
+        unloadCatalog();
 
 #undef setlocale
-    const char* nl = ::setlocale(LC_ALL, locale);
-    if(nl != NULL)
-        locale_ = nl;
 
-    std::string::size_type pos = locale_.find('.');
-    if(pos != std::string::npos)
-        locale_ = locale_.substr(0, pos);
-
-    std::string lang = "", region = "";
-
-    pos = locale_.find('_');
-    if(pos != std::string::npos)
-    {
-        lang = locale_.substr(0, pos);
-        region = locale_.substr(pos + 1);
+        const char* nl = ::setlocale(LC_ALL, locale);
+        if(nl != NULL)
+            locale_ = nl;
+        else
+            locale_ = locale;
     }
-
-    // todo aliases
-    if(lang == "German")
-        lang = "de";
-    else if(lang == "English")
-        lang = "en";
-
-    if(region == "Germany")
-        region = "DE";
-    else if(region == "United States")
-        region = "EN";
-
-    locale_ = lang;
-    if(region.length())
-        locale_ += ("_" + region);
-
     return locale_.c_str();
 }
 
@@ -116,11 +88,14 @@ const char* GetText::setCodepage(const char* codepage)
 {
     if(codepage)
     {
+        unloadCatalog();
         codepage_ = codepage;
 
-        if(iconv_cd_ != 0)
+        if(iconv_cd_)
+        {
             iconv_close(iconv_cd_);
-        iconv_cd_ = iconv_open(codepage, "UTF-8");
+            iconv_cd_ = NULL;
+        }
     }
 
     return codepage_.c_str();
@@ -140,11 +115,8 @@ const char* GetText::get(const char* text)
 
     std::map<std::string, std::string>::const_iterator entry = entries_.find(text);
     if(entry == entries_.end())
-    {
-        // Add if not found
-        entries_[text] = text;
         return text;
-    } else
+    else
         return entry->second.c_str();
 }
 
@@ -156,23 +128,29 @@ size_t iconv(iconv_t cd, T** inbuf, size_t* inbytesleft, char** outbuf, size_t* 
     return iconv(cd, const_cast<const T**>(inbuf), inbytesleft, outbuf, outbytesleft);
 }
 
-std::string GetText::getCatalogFilePath()
+std::string GetText::getCatalogFilePath() const
 {
-    std::string baseDir = catalogDirs_[catalog_];
+    std::map<std::string, std::string>::const_iterator it = catalogDirs_.find(catalog_);
+    if(it == catalogDirs_.end())
+        return "";
+    std::string baseDir = it->second;
 
     std::vector<std::string> possibleFileNames;
     // Default path: dirname/locale/category/domainname.mo
     possibleFileNames.push_back(baseDir + "/" + locale_ + "/LC_MESSAGES/" + catalog_ + ".mo");
     // Our extensions
+    std::string lang, region, encoding;
+    splitLanguageCode(locale_, lang, region, encoding);
+
     possibleFileNames.push_back(baseDir + "/" + catalog_ + "-" + locale_ + ".mo");
+    if(!region.empty())
+        possibleFileNames.push_back(baseDir + "/" + catalog_ + "-" + lang + "_" + region + ".mo");
+    possibleFileNames.push_back(baseDir + "/" + catalog_ + "-" + lang + ".mo");
+
     possibleFileNames.push_back(baseDir + "/" + locale_ + ".mo");
-    std::string::size_type pos = locale_.find('_');
-    if(pos != std::string::npos)
-    {
-        std::string lang = locale_.substr(0, pos);
-        possibleFileNames.push_back(baseDir + "/" + catalog_ + "-" + lang + ".mo");
-        possibleFileNames.push_back(baseDir + "/" + lang + ".mo");
-    }
+    if(!region.empty())
+        possibleFileNames.push_back(baseDir + "/" + lang + "_" + region + ".mo");
+    possibleFileNames.push_back(baseDir + "/" + lang + ".mo");
 
     for(std::vector<std::string>::const_iterator it = possibleFileNames.begin(); it != possibleFileNames.end(); ++it)
     {
@@ -255,6 +233,9 @@ void GetText::loadCatalog()
             file.read(&readBuffer.front(), it->keyLen);
             it->key = &readBuffer.front();
         }
+
+        if(!iconv_cd_)
+            iconv_cd_ = iconv_open(this->codepage_.c_str(), "UTF-8");
 
         for(std::vector<CatalogEntryDescriptor>::iterator it = entryDescriptors.begin(); it != entryDescriptors.end(); ++it)
         {

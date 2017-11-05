@@ -40,7 +40,7 @@ public:
 
 private:
     void unloadCatalog();
-    std::string getCatalogFilePath();
+    std::string getCatalogFilePath() const;
 
     std::map<std::string, std::string> catalogDirs_;
     std::string catalog_;
