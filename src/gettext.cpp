@@ -23,6 +23,7 @@
 #include <boost/nowide/fstream.hpp>
 #include <clocale>
 #include <cstddef>
+#include <iostream>
 #include <stdexcept>
 #include <stdint.h>
 #include <utility>
@@ -260,7 +261,8 @@ void GetText::loadCatalog()
             } else
                 entries_[it->key] = &readBuffer.front();
         }
-    } catch(std::exception&)
+    } catch(std::exception& e)
     {
+        std::cerr << "Error loading catalog:" << e.what() << std::endl;
     } //-V565
 }

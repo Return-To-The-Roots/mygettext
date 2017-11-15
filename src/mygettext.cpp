@@ -56,7 +56,7 @@ void splitLanguageCode(const std::string& code, std::string& lang, std::string& 
     } else
     {
         lang = code;
-        encoding = "";
+        encoding.clear();
     }
 
     pos = lang.find('_');
@@ -65,7 +65,7 @@ void splitLanguageCode(const std::string& code, std::string& lang, std::string& 
         region = lang.substr(pos + 1);
         lang = lang.substr(0, pos);
     } else
-        region = "";
+        region.clear();
 
     // todo aliases
     if(lang == "German")
