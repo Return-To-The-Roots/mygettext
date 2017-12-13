@@ -18,8 +18,11 @@
 #include "mygettextDefines.h" // IWYU pragma: keep
 #include "gettext.h"
 #include "mygettext.h"
+#include "utils.h"
 #include "libendian/EndianIStreamAdapter.h"
 #include <boost/filesystem.hpp>
+#include <boost/foreach.hpp>
+#include <boost/locale.hpp>
 #include <boost/nowide/fstream.hpp>
 #include <clocale>
 #include <cstddef>
@@ -70,19 +73,18 @@ const char* GetText::setCatalog(const char* catalog)
 
 const char* GetText::setLocale(const char* locale)
 {
+#undef setlocale
     if(locale)
     {
         unloadCatalog();
-
-#undef setlocale
-
-        const char* nl = ::setlocale(LC_ALL, locale);
-        if(nl != NULL)
-            locale_ = nl;
+        ::setlocale(LC_ALL, locale);
+        locale_ = boost::locale::generator().generate(locale);
+        if(std::has_facet<boost::locale::info>(locale_))
+            localeName_ = std::use_facet<boost::locale::info>(locale_).name();
         else
-            locale_ = locale;
+            localeName_ = "C";
     }
-    return locale_.c_str();
+    return localeName_.c_str();
 }
 
 const char* GetText::setCodepage(const char* codepage)
@@ -110,8 +112,7 @@ void GetText::unloadCatalog()
 
 const char* GetText::get(const char* text)
 {
-    // Load catalog only if locale is not "C" or "POSIX"
-    if(!isLoaded && locale_ != "C" && locale_ != "POSIX")
+    if(!isLoaded)
         loadCatalog();
 
     std::map<std::string, std::string>::const_iterator entry = entries_.find(text);
@@ -136,22 +137,17 @@ std::string GetText::getCatalogFilePath() const
         return "";
     std::string baseDir = it->second;
 
+    std::vector<std::string> folders = getPossibleFoldersForLocale(locale_);
     std::vector<std::string> possibleFileNames;
     // Default path: dirname/locale/category/domainname.mo
-    possibleFileNames.push_back(baseDir + "/" + locale_ + "/LC_MESSAGES/" + catalog_ + ".mo");
-    // Our extensions
-    std::string lang, region, encoding;
-    splitLanguageCode(locale_, lang, region, encoding);
-
-    possibleFileNames.push_back(baseDir + "/" + catalog_ + "-" + locale_ + ".mo");
-    if(!region.empty())
-        possibleFileNames.push_back(baseDir + "/" + catalog_ + "-" + lang + "_" + region + ".mo");
-    possibleFileNames.push_back(baseDir + "/" + catalog_ + "-" + lang + ".mo");
-
-    possibleFileNames.push_back(baseDir + "/" + locale_ + ".mo");
-    if(!region.empty())
-        possibleFileNames.push_back(baseDir + "/" + lang + "_" + region + ".mo");
-    possibleFileNames.push_back(baseDir + "/" + lang + ".mo");
+    BOOST_FOREACH(const std::string& folder, folders)
+        possibleFileNames.push_back(baseDir + "/" + folder + "/LC_MESSAGES/" + catalog_ + ".mo");
+    // Extension: dirname/catalog-locale.mo
+    BOOST_FOREACH(const std::string& folder, folders)
+        possibleFileNames.push_back(baseDir + "/" + catalog_ + "-" + folder + ".mo");
+    // Extension: dirname/locale.mo
+    BOOST_FOREACH(const std::string& folder, folders)
+        possibleFileNames.push_back(baseDir + "/" + folder + ".mo");
 
     for(std::vector<std::string>::const_iterator it = possibleFileNames.begin(); it != possibleFileNames.end(); ++it)
     {
@@ -235,7 +231,7 @@ void GetText::loadCatalog()
             it->key = &readBuffer.front();
         }
 
-        if(!iconv_cd_)
+        if(!iconv_cd_ && codepage_ != "UTF-8")
             iconv_cd_ = iconv_open(this->codepage_.c_str(), "UTF-8");
 
         for(std::vector<CatalogEntryDescriptor>::iterator it = entryDescriptors.begin(); it != entryDescriptors.end(); ++it)

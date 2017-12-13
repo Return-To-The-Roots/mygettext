@@ -17,11 +17,12 @@
 #ifndef GETTEXT_H_INCLUDED
 #define GETTEXT_H_INCLUDED
 
+#pragma once
+
 #include <iconv.h>
+#include <locale>
 #include <map>
 #include <string>
-
-#pragma once
 
 class GetText
 {
@@ -43,8 +44,8 @@ private:
     std::string getCatalogFilePath() const;
 
     std::map<std::string, std::string> catalogDirs_;
-    std::string catalog_;
-    std::string locale_;
+    std::string catalog_, localeName_;
+    std::locale locale_;
     std::string codepage_;
     std::map<std::string, std::string> entries_;
     bool isLoaded;

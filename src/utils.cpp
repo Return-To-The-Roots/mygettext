@@ -1,0 +1,66 @@
+// Copyright (c) 2017 - 2017 Settlers Freaks (sf-team at siedler25.org)
+//
+// This file is part of Return To The Roots.
+//
+// Return To The Roots is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 2 of the License, or
+// (at your option) any later version.
+//
+// Return To The Roots is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Return To The Roots. If not, see <http://www.gnu.org/licenses/>.
+
+#include "mygettextDefines.h" // IWYU pragma: keep
+#include "utils.h"
+#include <boost/locale.hpp>
+
+std::vector<std::string> getPossibleFoldersForLangCode(const std::string& langCode)
+{
+    try
+    {
+        std::locale genLocale = boost::locale::generator().generate(langCode);
+        return getPossibleFoldersForLocale(genLocale);
+    } catch(...)
+    {
+        return std::vector<std::string>(1, "en_GB");
+    }
+}
+
+std::vector<std::string> getPossibleFoldersForLocale(const std::locale& locale)
+{
+    try
+    {
+        // Query the locale info. Need to generate it with boost to have the info facet
+        const boost::locale::info& locProperties = std::use_facet<boost::locale::info>(locale);
+        const std::string language = locProperties.language();
+        const std::string variant = locProperties.variant();
+        const std::string country = locProperties.country();
+
+        // Adapted from Boost.Locale
+        // List of fallbacks: en_US@euro, en@euro, en_US, en.
+        std::vector<std::string> paths;
+
+        if(!variant.empty() && !country.empty())
+            paths.push_back(language + "_" + country + "@" + variant);
+        if(!variant.empty())
+            paths.push_back(language + "@" + variant);
+        if(!country.empty())
+            paths.push_back(language + "_" + country);
+        paths.push_back(language);
+        if(language == "C" || language == "POSIX")
+        {
+            // Add defaults
+            paths.push_back("en_GB");
+            paths.push_back("en");
+        }
+        return paths;
+    } catch(...)
+    {
+        return std::vector<std::string>(1, "en_GB");
+    }
+}

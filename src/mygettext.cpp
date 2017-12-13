@@ -45,36 +45,3 @@ const char* mybind_textdomain_codeset(const char* /*domainname*/, const char* co
 {
     return __gettext.setCodepage(codeset);
 }
-
-void splitLanguageCode(const std::string& code, std::string& lang, std::string& region, std::string& encoding)
-{
-    std::string::size_type pos = code.find('.');
-    if(pos != std::string::npos)
-    {
-        lang = code.substr(0, pos);
-        encoding = code.substr(pos + 1);
-    } else
-    {
-        lang = code;
-        encoding.clear();
-    }
-
-    pos = lang.find('_');
-    if(pos != std::string::npos)
-    {
-        region = lang.substr(pos + 1);
-        lang = lang.substr(0, pos);
-    } else
-        region.clear();
-
-    // todo aliases
-    if(lang == "German")
-        lang = "de";
-    else if(lang == "English")
-        lang = "en";
-
-    if(region == "Germany")
-        region = "DE";
-    else if(region == "United States")
-        region = "EN";
-}
