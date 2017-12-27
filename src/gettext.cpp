@@ -22,7 +22,6 @@
 #include "libendian/EndianIStreamAdapter.h"
 #include <boost/filesystem.hpp>
 #include <boost/foreach.hpp>
-#include <boost/locale.hpp>
 #include <boost/nowide/fstream.hpp>
 #include <clocale>
 #include <cstddef>
@@ -78,11 +77,8 @@ const char* GetText::setLocale(const char* locale)
     {
         unloadCatalog();
         ::setlocale(LC_ALL, locale);
-        locale_ = boost::locale::generator().generate(locale);
-        if(std::has_facet<boost::locale::info>(locale_))
-            localeName_ = std::use_facet<boost::locale::info>(locale_).name();
-        else
-            localeName_ = "C";
+        localeInfo_.parse(locale);
+        localeName_ = localeInfo_.getName();
     }
     return localeName_.c_str();
 }
@@ -137,7 +133,7 @@ std::string GetText::getCatalogFilePath() const
         return "";
     std::string baseDir = it->second;
 
-    std::vector<std::string> folders = getPossibleFoldersForLocale(locale_);
+    std::vector<std::string> folders = getPossibleFoldersForLocale(localeInfo_);
     std::vector<std::string> possibleFileNames;
     // Default path: dirname/locale/category/domainname.mo
     BOOST_FOREACH(const std::string& folder, folders)

@@ -1,5 +1,5 @@
 FIND_PACKAGE(Iconv REQUIRED)
-FIND_PACKAGE(Boost 1.55 REQUIRED COMPONENTS filesystem iostreams system locale)
+FIND_PACKAGE(Boost 1.55 REQUIRED COMPONENTS filesystem iostreams system)
 
 get_filename_component(parentPath ${CMAKE_CURRENT_SOURCE_DIR} DIRECTORY)
 set(includePath ${parentPath}/include)
@@ -7,7 +7,12 @@ set(includePath ${parentPath}/include)
 include_directories(${includePath}/mygettext ${LIBENDIAN_INCLUDE_DIRS})
 INCLUDE_DIRECTORIES(SYSTEM ${ICONV_INCLUDE_DIR} ${Boost_INCLUDE_DIRS} ${NOWIDE_INCLUDE_DIRS})
 add_definitions(-DBOOST_NOWIDE_USE_FILESYSTEM)
-set(SRC_FILES mygettext.cpp ${includePath}/mygettext/mygettext.h gettext.cpp gettext.h utils.cpp ${includePath}/mygettext/utils.h)
+set(SRC_FILES
+	mygettext.cpp ${includePath}/mygettext/mygettext.h
+	gettext.cpp gettext.h
+	utils.cpp ${includePath}/mygettext/utils.h
+	LocaleInfo.cpp ${includePath}/mygettext/LocaleInfo.h
+	)
 ADD_LIBRARY(mygettext STATIC ${SRC_FILES})
 
 target_include_directories(mygettext INTERFACE ${includePath})

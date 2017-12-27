@@ -17,50 +17,37 @@
 
 #include "mygettextDefines.h" // IWYU pragma: keep
 #include "utils.h"
-#include <boost/locale.hpp>
+#include "LocaleInfo.h"
 
 std::vector<std::string> getPossibleFoldersForLangCode(const std::string& langCode)
 {
-    try
-    {
-        std::locale genLocale = boost::locale::generator().generate(langCode);
-        return getPossibleFoldersForLocale(genLocale);
-    } catch(...)
-    {
-        return std::vector<std::string>(1, "en_GB");
-    }
+    LocaleInfo info;
+    info.parse(langCode);
+    return getPossibleFoldersForLocale(info);
 }
 
-std::vector<std::string> getPossibleFoldersForLocale(const std::locale& locale)
+std::vector<std::string> getPossibleFoldersForLocale(const LocaleInfo& locale)
 {
-    try
-    {
-        // Query the locale info. Need to generate it with boost to have the info facet
-        const boost::locale::info& locProperties = std::use_facet<boost::locale::info>(locale);
-        const std::string language = locProperties.language();
-        const std::string variant = locProperties.variant();
-        const std::string country = locProperties.country();
+    const std::string language = locale.getLanguage();
+    const std::string variant = locale.getVariant();
+    const std::string country = locale.getCountry();
 
-        // Adapted from Boost.Locale
-        // List of fallbacks: en_US@euro, en@euro, en_US, en.
-        std::vector<std::string> paths;
+    // Adapted from Boost.Locale
+    // List of fallbacks: en_US@euro, en@euro, en_US, en.
+    std::vector<std::string> paths;
 
-        if(!variant.empty() && !country.empty())
-            paths.push_back(language + "_" + country + "@" + variant);
-        if(!variant.empty())
-            paths.push_back(language + "@" + variant);
-        if(!country.empty())
-            paths.push_back(language + "_" + country);
-        paths.push_back(language);
-        if(language == "C" || language == "POSIX")
-        {
-            // Add defaults
-            paths.push_back("en_GB");
-            paths.push_back("en");
-        }
-        return paths;
-    } catch(...)
+    if(!variant.empty() && !country.empty())
+        paths.push_back(language + "_" + country + "@" + variant);
+    if(!variant.empty())
+        paths.push_back(language + "@" + variant);
+    if(!country.empty())
+        paths.push_back(language + "_" + country);
+    paths.push_back(language);
+    if(language == "C" || language == "POSIX")
     {
-        return std::vector<std::string>(1, "en_GB");
+        // Add defaults
+        paths.push_back("en_GB");
+        paths.push_back("en");
     }
+    return paths;
 }

@@ -19,8 +19,8 @@
 
 #pragma once
 
+#include "LocaleInfo.h"
 #include <iconv.h>
-#include <locale>
 #include <map>
 #include <string>
 
@@ -45,7 +45,7 @@ private:
 
     std::map<std::string, std::string> catalogDirs_;
     std::string catalog_, localeName_;
-    std::locale locale_;
+    LocaleInfo localeInfo_;
     std::string codepage_;
     std::map<std::string, std::string> entries_;
     bool isLoaded;

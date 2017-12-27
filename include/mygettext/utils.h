@@ -18,11 +18,12 @@
 #ifndef utils_h__
 #define utils_h__
 
-#include <locale>
 #include <string>
 #include <vector>
 
+class LocaleInfo;
+
 std::vector<std::string> getPossibleFoldersForLangCode(const std::string& langCode);
-std::vector<std::string> getPossibleFoldersForLocale(const std::locale& locale);
+std::vector<std::string> getPossibleFoldersForLocale(const LocaleInfo& locale);
 
 #endif // utils_h__
