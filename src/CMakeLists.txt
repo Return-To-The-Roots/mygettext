@@ -17,6 +17,8 @@ ADD_LIBRARY(mygettext STATIC ${SRC_FILES})
 
 target_include_directories(mygettext INTERFACE ${includePath})
 TARGET_LINK_LIBRARIES(mygettext ${ICONV_LIBRARY} ${Boost_LIBRARIES})
+# Disable automatic boost linking
+target_compile_definitions(mygettext PUBLIC -DBOOST_ALL_NO_LIB)
 
 if(ClangFormat_FOUND)
     add_clangFormat_files(${SRC_FILES})
