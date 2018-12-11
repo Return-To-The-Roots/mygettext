@@ -20,6 +20,9 @@ TARGET_LINK_LIBRARIES(mygettext ${ICONV_LIBRARY} ${Boost_LIBRARIES})
 # Disable automatic boost linking
 target_compile_definitions(mygettext PUBLIC -DBOOST_ALL_NO_LIB)
 
+include(EnableWarnings)
+enable_warnings(mygettext)
+
 if(ClangFormat_FOUND)
     add_clangFormat_files(${SRC_FILES})
 endif()
