@@ -115,7 +115,7 @@ void LocaleInfo::parse_from_lang(std::string const& locale_name)
     {
         if('A' <= tmp[i] && tmp[i] <= 'Z')
             tmp[i] = tmp[i] - 'A' + 'a';
-        else if(tmp[i] < 'a' && 'z' < tmp[i])
+        else if(tmp[i] < 'a' || 'z' < tmp[i])
             return;
     }
     language = tmp;
@@ -144,7 +144,7 @@ void LocaleInfo::parse_from_country(std::string const& locale_name)
     {
         if('a' <= tmp[i] && tmp[i] <= 'a')
             tmp[i] = tmp[i] - 'a' + 'A';
-        else if(tmp[i] < 'A' && 'Z' < tmp[i])
+        else if(tmp[i] < 'A' || 'Z' < tmp[i])
             return;
     }
 
@@ -163,7 +163,7 @@ void LocaleInfo::parse_from_country(std::string const& locale_name)
 
 void LocaleInfo::parse_from_encoding(std::string const& locale_name)
 {
-    size_t end = locale_name.find_first_of("@");
+    size_t end = locale_name.find_first_of('@');
     std::string tmp = locale_name.substr(0, end);
     if(tmp.empty())
         return;
