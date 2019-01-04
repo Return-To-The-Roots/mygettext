@@ -21,7 +21,6 @@
 #include "utils.h"
 #include "libendian/EndianIStreamAdapter.h"
 #include <boost/filesystem.hpp>
-#include <boost/foreach.hpp>
 #include <boost/nowide/fstream.hpp>
 #include <clocale>
 #include <cstddef>
@@ -50,7 +49,7 @@ GetText::~GetText()
 const char* GetText::setCatalogDir(const char* catalog, const char* directory)
 {
     if(!catalog)
-        return NULL;
+        return nullptr;
     if(directory)
     {
         catalogDirs_[catalog] = directory;
@@ -93,7 +92,7 @@ const char* GetText::setCodepage(const char* codepage)
         if(iconv_cd_)
         {
             iconv_close(iconv_cd_);
-            iconv_cd_ = NULL;
+            iconv_cd_ = nullptr;
         }
     }
 
@@ -136,13 +135,13 @@ std::string GetText::getCatalogFilePath() const
     std::vector<std::string> folders = getPossibleFoldersForLocale(localeInfo_);
     std::vector<std::string> possibleFileNames;
     // Default path: dirname/locale/category/domainname.mo
-    BOOST_FOREACH(const std::string& folder, folders)
+    for(const std::string& folder : folders)
         possibleFileNames.push_back(baseDir + "/" + folder + "/LC_MESSAGES/" + catalog_ + ".mo");
     // Extension: dirname/catalog-locale.mo
-    BOOST_FOREACH(const std::string& folder, folders)
+    for(const std::string& folder : folders)
         possibleFileNames.push_back(baseDir + "/" + catalog_ + "-" + folder + ".mo");
     // Extension: dirname/locale.mo
-    BOOST_FOREACH(const std::string& folder, folders)
+    for(const std::string& folder : folders)
         possibleFileNames.push_back(baseDir + "/" + folder + ".mo");
 
     for(std::vector<std::string>::const_iterator it = possibleFileNames.begin(); it != possibleFileNames.end(); ++it)
