@@ -109,11 +109,11 @@ void LocaleInfo::parse_from_lang(std::string const& locale_name)
     std::string tmp = locale_name.substr(0, end);
     if(tmp.empty())
         return;
-    for(unsigned i = 0; i < tmp.size(); i++)
+    for(char& i : tmp)
     {
-        if('A' <= tmp[i] && tmp[i] <= 'Z')
-            tmp[i] = tmp[i] - 'A' + 'a';
-        else if(tmp[i] < 'a' || 'z' < tmp[i])
+        if('A' <= i && i <= 'Z')
+            i = i - 'A' + 'a';
+        else if(i < 'a' || 'z' < i)
             return;
     }
     language = tmp;
@@ -138,11 +138,11 @@ void LocaleInfo::parse_from_country(std::string const& locale_name)
     std::string tmp = locale_name.substr(0, end);
     if(tmp.empty())
         return;
-    for(unsigned i = 0; i < tmp.size(); i++)
+    for(char& i : tmp)
     {
-        if('a' <= tmp[i] && tmp[i] <= 'a')
-            tmp[i] = tmp[i] - 'a' + 'A';
-        else if(tmp[i] < 'A' || 'Z' < tmp[i])
+        if('a' <= i && i <= 'z')
+            i = i - 'a' + 'A';
+        else if(i < 'A' || 'Z' < i)
             return;
     }
 
@@ -165,10 +165,10 @@ void LocaleInfo::parse_from_encoding(std::string const& locale_name)
     std::string tmp = locale_name.substr(0, end);
     if(tmp.empty())
         return;
-    for(unsigned i = 0; i < tmp.size(); i++)
+    for(char& i : tmp)
     {
-        if('A' <= tmp[i] && tmp[i] <= 'Z')
-            tmp[i] = tmp[i] - 'A' + 'a';
+        if('A' <= i && i <= 'Z')
+            i = i - 'A' + 'a';
     }
     encoding = tmp;
 
