@@ -17,7 +17,7 @@
 #define BOOST_LOCALE_USE_WIN32_API
 #endif
 namespace conv { namespace impl {
-    std::string normalize_encoding(char const* ccharset)
+    static std::string normalize_encoding(char const* ccharset)
     {
         std::string charset;
         charset.reserve(std::strlen(ccharset));
@@ -35,7 +35,7 @@ namespace conv { namespace impl {
     }
 }} // namespace conv::impl
 
-std::string get_system_locale(bool use_utf8)
+static std::string get_system_locale(bool use_utf8)
 {
     char const* lang = getenv("LC_CTYPE");
     if(!lang || !*lang)
