@@ -25,9 +25,15 @@
 
 const char* mysetlocale(int category, const char* locale);
 
+#ifdef __GNUC__
+#define MGT_FORMAT_ARG(idx) __attribute__((format_arg(1)))
+#else
+#define MGT_FORMAT_ARG(idx)
+#endif
+
 #undef gettext
 #define gettext mygettext
-const char* mygettext(const char* msgid) __attribute__((format_arg(1)));
+const char* mygettext(const char* msgid) MGT_FORMAT_ARG(1);
 
 #undef bindtextdomain
 #define bindtextdomain mybindtextdomain
@@ -42,7 +48,7 @@ const char* mytextdomain(const char* domainname);
 const char* mybind_textdomain_codeset(const char* domainname, const char* codeset);
 
 /// Return translated text for given message (or unmodified text if not found)
-inline __attribute__((format_arg(1))) const char* _(const char* const txt)
+inline MGT_FORMAT_ARG(1) const char* _(const char* const txt)
 {
     return gettext(txt);
 }
@@ -51,9 +57,11 @@ inline const char* _(const std::string& txt)
     return gettext(txt.c_str());
 }
 /// Return unmodified string (used when translation is done at other place (e.g. string constants)
-inline __attribute__((format_arg(1))) const char* gettext_noop(const char* const str)
+inline MGT_FORMAT_ARG(1) const char* gettext_noop(const char* const str)
 {
     return str;
 }
+
+#undef MGT_FORMAT_ARG
 
 #endif // !MYGETTEXT_H_INCLUDED
