@@ -200,16 +200,16 @@ void GetText::loadCatalog()
         std::vector<CatalogEntryDescriptor> entryDescriptors(count);
 
         file.setPosition(offsetKeyTable);
-        for(std::vector<CatalogEntryDescriptor>::iterator it = entryDescriptors.begin(); it != entryDescriptors.end(); ++it)
+        for(auto& entryDescriptor : entryDescriptors)
         {
-            file >> it->keyLen >> it->keyOffset;
-            ++it->keyLen; // Terminating zero
+            file >> entryDescriptor.keyLen >> entryDescriptor.keyOffset;
+            ++entryDescriptor.keyLen; // Terminating zero
         }
         file.setPosition(offsetValueTable);
-        for(std::vector<CatalogEntryDescriptor>::iterator it = entryDescriptors.begin(); it != entryDescriptors.end(); ++it)
+        for(auto& entryDescriptor : entryDescriptors)
         {
-            file >> it->valueLen >> it->valueOffset;
-            ++it->valueLen; // Terminating zero
+            file >> entryDescriptor.valueLen >> entryDescriptor.valueOffset;
+            ++entryDescriptor.valueLen; // Terminating zero
         }
 
         // Declare those outside of the loop to avoid reallocating the memory at every iteration
@@ -217,29 +217,29 @@ void GetText::loadCatalog()
         std::vector<char> iconvBuffer;
 
         // Keys and values are most probably contigous. So read them at once
-        for(std::vector<CatalogEntryDescriptor>::iterator it = entryDescriptors.begin(); it != entryDescriptors.end(); ++it)
+        for(auto& entryDescriptor : entryDescriptors)
         {
-            readBuffer.resize(it->keyLen);
+            readBuffer.resize(entryDescriptor.keyLen);
 
-            file.setPosition(it->keyOffset);
-            file.read(&readBuffer.front(), it->keyLen);
-            it->key = &readBuffer.front();
+            file.setPosition(entryDescriptor.keyOffset);
+            file.read(&readBuffer.front(), entryDescriptor.keyLen);
+            entryDescriptor.key = &readBuffer.front();
         }
 
         if(!iconv_cd_ && codepage_ != "UTF-8")
             iconv_cd_ = iconv_open(this->codepage_.c_str(), "UTF-8");
 
-        for(std::vector<CatalogEntryDescriptor>::iterator it = entryDescriptors.begin(); it != entryDescriptors.end(); ++it)
+        for(auto& entryDescriptor : entryDescriptors)
         {
-            readBuffer.resize(it->valueLen);
+            readBuffer.resize(entryDescriptor.valueLen);
 
-            file.setPosition(it->valueOffset);
-            file.read(&readBuffer.front(), it->valueLen);
+            file.setPosition(entryDescriptor.valueOffset);
+            file.read(&readBuffer.front(), entryDescriptor.valueLen);
 
             if(iconv_cd_ != 0)
             {
-                iconvBuffer.resize(it->valueLen * 6); // UTF needs at most 6 times the size per char, so this should be enough
-                size_t ilength = it->valueLen - 1;    // Don't count terminating zero
+                iconvBuffer.resize(entryDescriptor.valueLen * 6); // UTF needs at most 6 times the size per char, so this should be enough
+                size_t ilength = entryDescriptor.valueLen - 1;    // Don't count terminating zero
                 size_t olength = iconvBuffer.size();
 
                 char* input = &readBuffer.front();
@@ -248,9 +248,9 @@ void GetText::loadCatalog()
                 if(static_cast<size_t>(output - &iconvBuffer.front()) >= iconvBuffer.size())
                     throw std::runtime_error("Buffer overflow detected!"); // Should never happen due to the size given
                 *output = 0;                                               // Terminator
-                entries_[it->key] = &iconvBuffer.front();
+                entries_[entryDescriptor.key] = &iconvBuffer.front();
             } else
-                entries_[it->key] = &readBuffer.front();
+                entries_[entryDescriptor.key] = &readBuffer.front();
         }
     } catch(std::exception& e)
     {

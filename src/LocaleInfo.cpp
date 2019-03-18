@@ -186,9 +186,9 @@ void LocaleInfo::parse_from_encoding(std::string const& locale_name)
 void LocaleInfo::parse_from_variant(std::string const& locale_name)
 {
     variant = locale_name;
-    for(unsigned i = 0; i < variant.size(); i++)
+    for(char& i : variant)
     {
-        if('A' <= variant[i] && variant[i] <= 'Z')
-            variant[i] = variant[i] - 'A' + 'a';
+        if('A' <= i && i <= 'Z')
+            i = i - 'A' + 'a';
     }
 }
