@@ -127,7 +127,7 @@ size_t iconv(iconv_t cd, T** inbuf, size_t* inbytesleft, char** outbuf, size_t* 
 
 std::string GetText::getCatalogFilePath() const
 {
-    std::map<std::string, std::string>::const_iterator it = catalogDirs_.find(catalog_);
+    auto it = catalogDirs_.find(catalog_);
     if(it == catalogDirs_.end())
         return "";
     std::string baseDir = it->second;
