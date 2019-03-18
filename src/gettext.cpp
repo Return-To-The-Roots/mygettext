@@ -32,7 +32,7 @@
 
 namespace bfs = boost::filesystem;
 
-GetText::GetText() : isLoaded(false), iconv_cd_(0)
+GetText::GetText() : isLoaded(false), iconv_cd_(nullptr)
 {
     setCatalogDir("messages", "/usr/share/locale");
     setCatalog("messages");
@@ -236,7 +236,7 @@ void GetText::loadCatalog()
             file.setPosition(entryDescriptor.valueOffset);
             file.read(&readBuffer.front(), entryDescriptor.valueLen);
 
-            if(iconv_cd_ != 0)
+            if(iconv_cd_ != nullptr)
             {
                 iconvBuffer.resize(entryDescriptor.valueLen * 6); // UTF needs at most 6 times the size per char, so this should be enough
                 size_t ilength = entryDescriptor.valueLen - 1;    // Don't count terminating zero
