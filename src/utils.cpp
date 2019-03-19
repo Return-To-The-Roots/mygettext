@@ -28,9 +28,9 @@ std::vector<std::string> getPossibleFoldersForLangCode(const std::string& langCo
 
 std::vector<std::string> getPossibleFoldersForLocale(const LocaleInfo& locale)
 {
-    const std::string language = locale.getLanguage();
-    const std::string variant = locale.getVariant();
-    const std::string country = locale.getCountry();
+    const std::string& language = locale.getLanguage();
+    const std::string& variant = locale.getVariant();
+    const std::string& country = locale.getCountry();
 
     // Adapted from Boost.Locale
     // List of fallbacks: en_US@euro, en@euro, en_US, en.
