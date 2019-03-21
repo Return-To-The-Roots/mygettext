@@ -52,7 +52,7 @@ static std::string get_system_locale(bool use_utf8)
     {
         return lang;
     }
-    char buf[10];
+    std::array<char, 10> buf;
     if(GetLocaleInfoA(LOCALE_USER_DEFAULT, LOCALE_SISO639LANGNAME, buf, sizeof(buf)) == 0)
         return "C";
     std::string lc_name = buf;
