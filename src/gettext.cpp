@@ -134,6 +134,7 @@ std::string GetText::getCatalogFilePath() const
 
     std::vector<std::string> folders = getPossibleFoldersForLocale(localeInfo_);
     std::vector<std::string> possibleFileNames;
+    possibleFileNames.reserve(folders.size() * 3);
     // Default path: dirname/locale/category/domainname.mo
     for(const std::string& folder : folders)
     {
@@ -153,10 +154,10 @@ std::string GetText::getCatalogFilePath() const
         possibleFileNames.push_back(baseDir + "/" + folder + ".mo");
     }
 
-    for(std::vector<std::string>::const_iterator it = possibleFileNames.begin(); it != possibleFileNames.end(); ++it)
+    for(const std::string& fileName : possibleFileNames)
     {
-        if(bfs::exists(*it))
-            return *it;
+        if(bfs::exists(fileName))
+            return fileName;
     }
     return "";
 }
