@@ -136,13 +136,22 @@ std::string GetText::getCatalogFilePath() const
     std::vector<std::string> possibleFileNames;
     // Default path: dirname/locale/category/domainname.mo
     for(const std::string& folder : folders)
+    {
+        // NOLINTNEXTLINE(performance-inefficient-string-concatenation)
         possibleFileNames.push_back(baseDir + "/" + folder + "/LC_MESSAGES/" + catalog_ + ".mo");
+    }
     // Extension: dirname/catalog-locale.mo
     for(const std::string& folder : folders)
+    {
+        // NOLINTNEXTLINE(performance-inefficient-string-concatenation)
         possibleFileNames.push_back(baseDir + "/" + catalog_ + "-" + folder + ".mo");
+    }
     // Extension: dirname/locale.mo
     for(const std::string& folder : folders)
+    {
+        // NOLINTNEXTLINE(performance-inefficient-string-concatenation)
         possibleFileNames.push_back(baseDir + "/" + folder + ".mo");
+    }
 
     for(std::vector<std::string>::const_iterator it = possibleFileNames.begin(); it != possibleFileNames.end(); ++it)
     {
