@@ -110,7 +110,7 @@ const char* GetText::get(const char* text)
     if(!isLoaded)
         loadCatalog();
 
-    std::map<std::string, std::string>::const_iterator entry = entries_.find(text);
+    const auto entry = entries_.find(text);
     if(entry == entries_.end())
         return text;
     else
