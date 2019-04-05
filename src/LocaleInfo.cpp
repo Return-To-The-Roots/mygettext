@@ -14,6 +14,7 @@
 #define NOMINMAX
 #endif
 #include <windows.h>
+#include <array>
 #define BOOST_LOCALE_USE_WIN32_API
 #endif
 namespace conv { namespace impl {
@@ -53,24 +54,24 @@ static std::string get_system_locale(bool use_utf8)
         return lang;
     }
     std::array<char, 10> buf;
-    if(GetLocaleInfoA(LOCALE_USER_DEFAULT, LOCALE_SISO639LANGNAME, buf, sizeof(buf)) == 0)
+    if(GetLocaleInfoA(LOCALE_USER_DEFAULT, LOCALE_SISO639LANGNAME, buf.data(), buf.size()) == 0)
         return "C";
-    std::string lc_name = buf;
-    if(GetLocaleInfoA(LOCALE_USER_DEFAULT, LOCALE_SISO3166CTRYNAME, buf, sizeof(buf)) != 0)
+    std::string lc_name = buf.data();
+    if(GetLocaleInfoA(LOCALE_USER_DEFAULT, LOCALE_SISO3166CTRYNAME, buf.data(), buf.size()) != 0)
     {
         lc_name += "_";
-        lc_name += buf;
+        lc_name += buf.data();
     }
     if(!use_utf8)
     {
-        if(GetLocaleInfoA(LOCALE_USER_DEFAULT, LOCALE_IDEFAULTANSICODEPAGE, buf, sizeof(buf)) != 0)
+        if(GetLocaleInfoA(LOCALE_USER_DEFAULT, LOCALE_IDEFAULTANSICODEPAGE, buf.data(), buf.size()) != 0)
         {
-            if(atoi(buf) == 0)
+            if(atoi(buf.data()) == 0)
                 lc_name += ".UTF-8";
             else
             {
                 lc_name += ".windows-";
-                lc_name += buf;
+                lc_name += buf.data();
             }
         } else
         {
