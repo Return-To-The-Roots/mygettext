@@ -6,7 +6,6 @@
 
 #include "mygettextDefines.h" // IWYU pragma: keep
 #include "LocaleInfo.h"
-#include <boost/config.hpp>
 #include <cstdlib>
 #include <cstring>
 #if defined(BOOST_WINDOWS) || defined(__CYGWIN__)

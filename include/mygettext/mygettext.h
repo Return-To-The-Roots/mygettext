@@ -20,7 +20,7 @@
 #pragma once
 
 // necessarily here
-#include <locale>
+#include <locale> // IWYU pragma: keep
 #include <string>
 
 const char* mysetlocale(int category, const char* locale);

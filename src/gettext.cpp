@@ -17,10 +17,9 @@
 
 #include "mygettextDefines.h" // IWYU pragma: keep
 #include "gettext.h"
-#include "mygettext.h"
 #include "utils.h"
 #include "libendian/EndianIStreamAdapter.h"
-#include <boost/filesystem.hpp>
+#include <boost/filesystem/operations.hpp>
 #include <boost/nowide/fstream.hpp>
 #include <clocale>
 #include <cstddef>
