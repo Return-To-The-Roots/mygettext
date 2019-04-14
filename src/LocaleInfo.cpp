@@ -4,8 +4,8 @@
 //  http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#include "mygettextDefines.h" // IWYU pragma: keep
 #include "LocaleInfo.h"
+#include <boost/config.hpp>
 #include <cstdlib>
 #include <cstring>
 #if defined(BOOST_WINDOWS) || defined(__CYGWIN__)
