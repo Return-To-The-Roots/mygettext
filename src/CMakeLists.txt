@@ -14,7 +14,7 @@ add_library(mygettext STATIC ${SRC_FILES})
 
 target_include_directories(mygettext PRIVATE ${includePath}/mygettext INTERFACE ${includePath})
 target_include_directories(mygettext SYSTEM PRIVATE ${ICONV_INCLUDE_DIR})
-target_link_libraries(mygettext PRIVATE ${ICONV_LIBRARY} Boost::filesystem Boost::iostreams nowide::interface endian::interface PUBLIC Boost::disable_autolinking)
+target_link_libraries(mygettext PRIVATE ${ICONV_LIBRARY} Boost::filesystem Boost::iostreams Boost::nowide endian::interface PUBLIC Boost::disable_autolinking)
 target_compile_features(mygettext PUBLIC cxx_std_14)
 set_target_properties(mygettext PROPERTIES CXX_EXTENSIONS OFF)
 
