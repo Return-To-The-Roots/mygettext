@@ -75,7 +75,7 @@ const char* GetText::setLocale(const char* locale)
         unloadCatalog();
         ::setlocale(LC_ALL, locale);
         localeInfo_.parse(locale);
-        localeName_ = localeInfo_.getName();
+        localeName_ = locale;
     }
     return localeName_.c_str();
 }

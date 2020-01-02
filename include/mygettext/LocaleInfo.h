@@ -13,6 +13,7 @@ class LocaleInfo
 {
 public:
     LocaleInfo();
+    explicit LocaleInfo(const std::string& locale_name);
 
     const std::string& getName() const { return name; }
     const std::string& getLanguage() const { return language; }
@@ -21,7 +22,7 @@ public:
     const std::string& getEncoding() const { return encoding; }
     bool isUtf8() const { return utf8; }
 
-    void parse(std::string locale_name);
+    void parse(const std::string& locale_name);
 
 private:
     std::string name, language, country, variant, encoding;

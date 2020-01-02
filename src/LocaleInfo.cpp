@@ -87,7 +87,12 @@ static std::string get_system_locale(bool use_utf8)
 
 LocaleInfo::LocaleInfo() : name("C"), language("C"), encoding("us-ascii"), utf8(false) {}
 
-void LocaleInfo::parse(std::string locale_name)
+LocaleInfo::LocaleInfo(const std::string& locale_name)
+{
+    parse(locale_name);
+}
+
+void LocaleInfo::parse(const std::string& locale_name)
 {
     name = locale_name;
     language = "C";
@@ -95,12 +100,12 @@ void LocaleInfo::parse(std::string locale_name)
     variant.clear();
     encoding = "us-ascii";
     utf8 = false;
-    if(locale_name.empty())
-        locale_name = get_system_locale(true);
+    if(name.empty())
+        name = get_system_locale(true);
     // Default to British English
-    if(locale_name == "C")
-        locale_name = "en_GB";
-    parse_from_lang(locale_name);
+    if(name == "C")
+        name = "en_GB";
+    parse_from_lang(name);
 }
 
 void LocaleInfo::parse_from_lang(std::string const& locale_name)
