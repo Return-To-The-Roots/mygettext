@@ -24,9 +24,7 @@ namespace conv { namespace impl {
         while(*ccharset != 0)
         {
             char c = *ccharset++;
-            if('0' <= c && c <= '9')
-                charset += c;
-            else if('a' <= c && c <= 'z')
+            if(('0' <= c && c <= '9') || ('a' <= c && c <= 'z'))
                 charset += c;
             else if('A' <= c && c <= 'Z')
                 charset += char(c - 'A' + 'a');
