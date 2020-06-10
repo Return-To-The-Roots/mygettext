@@ -1,4 +1,4 @@
-// Copyright (c) 2005 - 2017 Settlers Freaks (sf-team at siedler25.org)
+// Copyright (c) 2005 - 2020 Settlers Freaks (sf-team at siedler25.org)
 //
 // This file is part of Return To The Roots.
 //
@@ -20,9 +20,10 @@
 #pragma once
 
 #include "LocaleInfo.h"
-#include <iconv.h>
 #include <map>
 #include <string>
+
+namespace s25gettext {
 
 class GetText
 {
@@ -37,11 +38,13 @@ public:
     const char* setLocale(const char* locale);
     const char* setCodepage(const char* codepage);
 
-    void loadCatalog();
+    std::string getCatalogFilePath() const;
+    bool loadCatalog();
+
+    const std::map<std::string, std::string>& getAllTranslations() const { return entries_; }
 
 private:
     void unloadCatalog();
-    std::string getCatalogFilePath() const;
 
     std::map<std::string, std::string> catalogDirs_;
     std::string catalog_, localeName_;
@@ -49,7 +52,7 @@ private:
     std::string codepage_;
     std::map<std::string, std::string> entries_;
     bool isLoaded;
-    iconv_t iconv_cd_;
 };
+} // namespace s25gettext
 
 #endif // !GETTEXT_H_INCLUDED

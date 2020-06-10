@@ -15,8 +15,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Return To The Roots. If not, see <http://www.gnu.org/licenses/>.
 
-#include "utils.h"
-#include "LocaleInfo.h"
+#include "mygettext/utils.h"
+#include "mygettext/LocaleInfo.h"
 
 std::vector<std::string> getPossibleFoldersForLangCode(const std::string& langCode)
 {

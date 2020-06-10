@@ -15,10 +15,10 @@
 // You should have received a copy of the GNU General Public License
 // along with Return To The Roots. If not, see <http://www.gnu.org/licenses/>.
 
-#include "mygettext.h"
-#include "gettext.h"
+#include "mygettext/mygettext.h"
+#include "mygettext/gettext.h"
 
-static GetText __gettext;
+static s25gettext::GetText __gettext;
 
 const char* mysetlocale(int /*category*/, const char* locale)
 {

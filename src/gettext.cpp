@@ -1,4 +1,4 @@
-// Copyright (c) 2005 - 2017 Settlers Freaks (sf-team at siedler25.org)
+// Copyright (c) 2005 - 2020 Settlers Freaks (sf-team at siedler25.org)
 //
 // This file is part of Return To The Roots.
 //
@@ -15,22 +15,36 @@
 // You should have received a copy of the GNU General Public License
 // along with Return To The Roots. If not, see <http://www.gnu.org/licenses/>.
 
-#include "gettext.h"
-#include "utils.h"
+#include "mygettext/gettext.h"
+#include "mygettext/utils.h"
 #include "libendian/EndianIStreamAdapter.h"
 #include <boost/filesystem/operations.hpp>
 #include <boost/nowide/fstream.hpp>
 #include <clocale>
 #include <cstddef>
 #include <cstdint>
+#include <iconv.h>
 #include <iostream>
+#include <memory>
 #include <stdexcept>
 #include <utility>
 #include <vector>
 
 namespace bfs = boost::filesystem;
 
-GetText::GetText() : isLoaded(false), iconv_cd_(nullptr)
+namespace s25gettext {
+struct IconvCloser
+{
+    using pointer = iconv_t;
+    void operator()(iconv_t p)
+    {
+        if(p)
+            iconv_close(p);
+    }
+};
+using IconvHandle = std::unique_ptr<iconv_t, IconvCloser>;
+
+GetText::GetText() : isLoaded(false)
 {
     setCatalogDir("messages", "/usr/share/locale");
     setCatalog("messages");
@@ -38,11 +52,7 @@ GetText::GetText() : isLoaded(false), iconv_cd_(nullptr)
     setCodepage("ISO-8859-1");
 }
 
-GetText::~GetText()
-{
-    if(iconv_cd_)
-        iconv_close(iconv_cd_);
-}
+GetText::~GetText() = default;
 
 const char* GetText::setCatalogDir(const char* catalog, const char* directory)
 {
@@ -86,12 +96,6 @@ const char* GetText::setCodepage(const char* codepage)
     {
         unloadCatalog();
         codepage_ = codepage;
-
-        if(iconv_cd_)
-        {
-            iconv_close(iconv_cd_);
-            iconv_cd_ = nullptr;
-        }
     }
 
     return codepage_.c_str();
@@ -167,10 +171,10 @@ struct CatalogEntryDescriptor
     std::string key;
 };
 
-void GetText::loadCatalog()
+bool GetText::loadCatalog()
 {
     if(isLoaded)
-        return;
+        return true;
 
     const std::string catalogfile = getCatalogFilePath();
 
@@ -179,19 +183,19 @@ void GetText::loadCatalog()
 
     // No catalog
     if(catalogfile.empty())
-        return;
+        return false;
 
     try
     {
         libendian::EndianIStreamAdapter<false, boost::nowide::ifstream> file(catalogfile, std::ios::binary);
 
         if(!file)
-            return;
+            return false;
 
         uint32_t magic; // magic number = 0x950412de
         file >> magic;
         if(magic != 0x950412de)
-            return;
+            return false;
 
         uint32_t revision;         // file format revision = 0
         uint32_t count;            // number of strings
@@ -204,7 +208,7 @@ void GetText::loadCatalog()
 
         // entries_.clear();
 
-        // Read the descriptors first as they are at contigous positions in the file
+        // Read the descriptors first as they are at contiguous positions in the file
         std::vector<CatalogEntryDescriptor> entryDescriptors(count);
 
         file.setPosition(offsetKeyTable);
@@ -224,7 +228,7 @@ void GetText::loadCatalog()
         std::vector<char> readBuffer;
         std::vector<char> iconvBuffer;
 
-        // Keys and values are most probably contigous. So read them at once
+        // Keys and values are most probably contiguous. So read them at once
         for(auto& entryDescriptor : entryDescriptors)
         {
             readBuffer.resize(entryDescriptor.keyLen);
@@ -234,25 +238,26 @@ void GetText::loadCatalog()
             entryDescriptor.key = &readBuffer.front();
         }
 
-        if(!iconv_cd_ && codepage_ != "UTF-8")
-            iconv_cd_ = iconv_open(this->codepage_.c_str(), "UTF-8");
+        IconvHandle iconv_cd;
+        if(codepage_ != "UTF-8")
+            iconv_cd.reset(iconv_open(this->codepage_.c_str(), "UTF-8"));
 
-        for(auto& entryDescriptor : entryDescriptors)
+        for(const auto& entryDescriptor : entryDescriptors)
         {
             readBuffer.resize(entryDescriptor.valueLen);
 
             file.setPosition(entryDescriptor.valueOffset);
             file.read(&readBuffer.front(), entryDescriptor.valueLen);
 
-            if(iconv_cd_ != nullptr)
+            if(iconv_cd)
             {
                 iconvBuffer.resize(entryDescriptor.valueLen * 6); // UTF needs at most 6 times the size per char, so this should be enough
-                size_t ilength = entryDescriptor.valueLen - 1;    // Don't count terminating zero
-                size_t olength = iconvBuffer.size();
+                size_t iLength = entryDescriptor.valueLen - 1;    // Don't count terminating zero
+                size_t oLength = iconvBuffer.size();
 
                 char* input = &readBuffer.front();
                 char* output = &iconvBuffer.front();
-                iconv(iconv_cd_, &input, &ilength, &output, &olength);
+                iconv(iconv_cd.get(), &input, &iLength, &output, &oLength);
                 if(static_cast<size_t>(output - &iconvBuffer.front()) >= iconvBuffer.size())
                     throw std::runtime_error("Buffer overflow detected!"); // Should never happen due to the size given
                 *output = 0;                                               // Terminator
@@ -263,5 +268,8 @@ void GetText::loadCatalog()
     } catch(std::exception& e)
     {
         std::cerr << "Error loading catalog:" << e.what() << std::endl;
+        return false;
     } //-V565
+    return true;
 }
+} // namespace s25gettext
