@@ -238,9 +238,9 @@ bool GetText::loadCatalog()
             entryDescriptor.key = &readBuffer.front();
         }
 
-        IconvHandle iconv_cd;
+        IconvHandle iconvHandle;
         if(codepage_ != "UTF-8")
-            iconv_cd.reset(iconv_open(this->codepage_.c_str(), "UTF-8"));
+            iconvHandle.reset(iconv_open(this->codepage_.c_str(), "UTF-8"));
 
         for(const auto& entryDescriptor : entryDescriptors)
         {
@@ -249,7 +249,7 @@ bool GetText::loadCatalog()
             file.setPosition(entryDescriptor.valueOffset);
             file.read(&readBuffer.front(), entryDescriptor.valueLen);
 
-            if(iconv_cd)
+            if(iconvHandle)
             {
                 iconvBuffer.resize(entryDescriptor.valueLen * 6); // UTF needs at most 6 times the size per char, so this should be enough
                 size_t iLength = entryDescriptor.valueLen - 1;    // Don't count terminating zero
@@ -257,7 +257,7 @@ bool GetText::loadCatalog()
 
                 char* input = &readBuffer.front();
                 char* output = &iconvBuffer.front();
-                iconv(iconv_cd.get(), &input, &iLength, &output, &oLength);
+                iconv(iconvHandle.get(), &input, &iLength, &output, &oLength);
                 if(static_cast<size_t>(output - &iconvBuffer.front()) >= iconvBuffer.size())
                     throw std::runtime_error("Buffer overflow detected!"); // Should never happen due to the size given
                 *output = 0;                                               // Terminator
