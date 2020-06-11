@@ -32,7 +32,7 @@
 
 namespace bfs = boost::filesystem;
 
-namespace s25gettext {
+namespace mygettext {
 struct IconvCloser
 {
     using pointer = iconv_t;
@@ -272,4 +272,4 @@ bool GetText::loadCatalog()
     } //-V565
     return true;
 }
-} // namespace s25gettext
+} // namespace mygettext

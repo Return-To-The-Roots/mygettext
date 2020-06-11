@@ -16,6 +16,8 @@
 #include <array>
 #define BOOST_LOCALE_USE_WIN32_API
 #endif
+
+namespace mygettext {
 namespace conv { namespace impl {
     static std::string normalize_encoding(char const* ccharset)
     {
@@ -195,3 +197,4 @@ void LocaleInfo::parse_from_variant(std::string const& locale_name)
             i = i - 'A' + 'a';
     }
 }
+} // namespace mygettext

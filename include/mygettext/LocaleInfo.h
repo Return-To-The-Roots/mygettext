@@ -9,6 +9,7 @@
 
 #include <string>
 
+namespace mygettext {
 class LocaleInfo
 {
 public:
@@ -33,5 +34,6 @@ private:
     void parse_from_encoding(std::string const& locale_name);
     void parse_from_variant(std::string const& locale_name);
 };
+} // namespace mygettext
 
 #endif // LocaleInfo_h__

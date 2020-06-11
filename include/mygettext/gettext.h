@@ -23,7 +23,7 @@
 #include <map>
 #include <string>
 
-namespace s25gettext {
+namespace mygettext {
 
 class GetText
 {
@@ -53,6 +53,6 @@ private:
     std::map<std::string, std::string> entries_;
     bool isLoaded;
 };
-} // namespace s25gettext
+} // namespace mygettext
 
 #endif // !GETTEXT_H_INCLUDED

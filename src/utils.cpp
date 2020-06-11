@@ -1,4 +1,4 @@
-// Copyright (c) 2017 - 2017 Settlers Freaks (sf-team at siedler25.org)
+// Copyright (c) 2017 - 2020 Settlers Freaks (sf-team at siedler25.org)
 //
 // This file is part of Return To The Roots.
 //
@@ -18,6 +18,7 @@
 #include "mygettext/utils.h"
 #include "mygettext/LocaleInfo.h"
 
+namespace mygettext {
 std::vector<std::string> getPossibleFoldersForLangCode(const std::string& langCode)
 {
     LocaleInfo info;
@@ -50,3 +51,4 @@ std::vector<std::string> getPossibleFoldersForLocale(const LocaleInfo& locale)
     }
     return paths;
 }
+} // namespace mygettext
