@@ -16,33 +16,18 @@
 // along with Return To The Roots. If not, see <http://www.gnu.org/licenses/>.
 
 #include "mygettext/gettext.h"
+#include "mygettext/readCatalog.h"
 #include "mygettext/utils.h"
-#include "libendian/EndianIStreamAdapter.h"
-#include <boost/filesystem/operations.hpp>
-#include <boost/nowide/fstream.hpp>
+#include <boost/filesystem.hpp>
 #include <clocale>
 #include <cstddef>
-#include <cstdint>
-#include <iconv.h>
 #include <iostream>
-#include <memory>
 #include <stdexcept>
 #include <utility>
-#include <vector>
 
 namespace bfs = boost::filesystem;
 
 namespace mygettext {
-struct IconvCloser
-{
-    using pointer = iconv_t;
-    void operator()(iconv_t p)
-    {
-        if(p)
-            iconv_close(p);
-    }
-};
-using IconvHandle = std::unique_ptr<iconv_t, IconvCloser>;
 
 GetText::GetText() : isLoaded(false)
 {
@@ -119,14 +104,6 @@ const char* GetText::get(const char* text)
         return entry->second.c_str();
 }
 
-// There are 2 versions of iconv: One with const char ** as input and one without const
-// This template is used, if const char** version exists
-template<typename T>
-size_t iconv(iconv_t cd, T** inbuf, size_t* inbytesleft, char** outbuf, size_t* outbytesleft)
-{
-    return iconv(cd, const_cast<const T**>(inbuf), inbytesleft, outbuf, outbytesleft);
-}
-
 std::string GetText::getCatalogFilePath() const
 {
     auto it = catalogDirs_.find(catalog_);
@@ -164,112 +141,28 @@ std::string GetText::getCatalogFilePath() const
     return "";
 }
 
-struct CatalogEntryDescriptor
-{
-    uint32_t keyLen, keyOffset;
-    uint32_t valueLen, valueOffset;
-    std::string key;
-};
-
 bool GetText::loadCatalog()
 {
     if(isLoaded)
         return true;
 
-    const std::string catalogfile = getCatalogFilePath();
+    const std::string catalogFilepath = getCatalogFilePath();
 
     // Try loading only once even when this fails, as it is unlikely to succeed on another time
     isLoaded = true;
 
     // No catalog
-    if(catalogfile.empty())
+    if(catalogFilepath.empty())
         return false;
 
     try
     {
-        libendian::EndianIStreamAdapter<false, boost::nowide::ifstream> file(catalogfile, std::ios::binary);
-
-        if(!file)
-            return false;
-
-        uint32_t magic; // magic number = 0x950412de
-        file >> magic;
-        if(magic != 0x950412de)
-            return false;
-
-        uint32_t revision;         // file format revision = 0
-        uint32_t count;            // number of strings
-        uint32_t offsetKeyTable;   // offset of table with original strings
-        uint32_t offsetValueTable; // offset of table with translation strings
-        uint32_t sizeHashTable;    // size of hashing table
-        uint32_t offsetHashTable;  // offset of hashing table
-
-        file >> revision >> count >> offsetKeyTable >> offsetValueTable >> sizeHashTable >> offsetHashTable;
-
-        // entries_.clear();
-
-        // Read the descriptors first as they are at contiguous positions in the file
-        std::vector<CatalogEntryDescriptor> entryDescriptors(count);
-
-        file.setPosition(offsetKeyTable);
-        for(auto& entryDescriptor : entryDescriptors)
-        {
-            file >> entryDescriptor.keyLen >> entryDescriptor.keyOffset;
-            ++entryDescriptor.keyLen; // Terminating zero
-        }
-        file.setPosition(offsetValueTable);
-        for(auto& entryDescriptor : entryDescriptors)
-        {
-            file >> entryDescriptor.valueLen >> entryDescriptor.valueOffset;
-            ++entryDescriptor.valueLen; // Terminating zero
-        }
-
-        // Declare those outside of the loop to avoid reallocating the memory at every iteration
-        std::vector<char> readBuffer;
-        std::vector<char> iconvBuffer;
-
-        // Keys and values are most probably contiguous. So read them at once
-        for(auto& entryDescriptor : entryDescriptors)
-        {
-            readBuffer.resize(entryDescriptor.keyLen);
-
-            file.setPosition(entryDescriptor.keyOffset);
-            file.read(&readBuffer.front(), entryDescriptor.keyLen);
-            entryDescriptor.key = &readBuffer.front();
-        }
-
-        IconvHandle iconvHandle;
-        if(codepage_ != "UTF-8")
-            iconvHandle.reset(iconv_open(this->codepage_.c_str(), "UTF-8"));
-
-        for(const auto& entryDescriptor : entryDescriptors)
-        {
-            readBuffer.resize(entryDescriptor.valueLen);
-
-            file.setPosition(entryDescriptor.valueOffset);
-            file.read(&readBuffer.front(), entryDescriptor.valueLen);
-
-            if(iconvHandle)
-            {
-                iconvBuffer.resize(entryDescriptor.valueLen * 6); // UTF needs at most 6 times the size per char, so this should be enough
-                size_t iLength = entryDescriptor.valueLen - 1;    // Don't count terminating zero
-                size_t oLength = iconvBuffer.size();
-
-                char* input = &readBuffer.front();
-                char* output = &iconvBuffer.front();
-                iconv(iconvHandle.get(), &input, &iLength, &output, &oLength);
-                if(static_cast<size_t>(output - &iconvBuffer.front()) >= iconvBuffer.size())
-                    throw std::runtime_error("Buffer overflow detected!"); // Should never happen due to the size given
-                *output = 0;                                               // Terminator
-                entries_[entryDescriptor.key] = &iconvBuffer.front();
-            } else
-                entries_[entryDescriptor.key] = &readBuffer.front();
-        }
+        entries_ = readCatalog(catalogFilepath, codepage_);
     } catch(std::exception& e)
     {
         std::cerr << "Error loading catalog:" << e.what() << std::endl;
         return false;
-    } //-V565
+    }
     return true;
 }
 } // namespace mygettext
