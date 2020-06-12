@@ -19,8 +19,6 @@
 
 #pragma once
 
-// necessarily here
-#include <locale> // IWYU pragma: keep
 #include <string>
 
 #ifdef __GNUC__
@@ -62,14 +60,8 @@ inline MGT_FORMAT_ARG(1) const char* gettext_noop(const char* const str)
 
 } // namespace mygettext
 
-#ifndef MYGETTEXT_SOURCE
-#define gettext ::mygettext::gettext
-#define bindtextdomain ::mygettext::bindtextdomain
-#define textdomain ::mygettext::textdomain
-#define bind_textdomain_codeset ::mygettext::bind_textdomain_codeset
 using mygettext::_;
 using mygettext::gettext_noop;
-#endif
 
 #undef MGT_FORMAT_ARG
 
