@@ -1,4 +1,4 @@
-// Copyright (c) 2005 - 2017 Settlers Freaks (sf-team at siedler25.org)
+// Copyright (c) 2005 - 2020 Settlers Freaks (sf-team at siedler25.org)
 //
 // This file is part of Return To The Roots.
 //
@@ -19,11 +19,7 @@
 
 #pragma once
 
-// necessarily here
-#include <locale> // IWYU pragma: keep
 #include <string>
-
-const char* mysetlocale(int category, const char* locale);
 
 #ifdef __GNUC__
 #define MGT_FORMAT_ARG(idx) __attribute__((format_arg(1)))
@@ -31,21 +27,21 @@ const char* mysetlocale(int category, const char* locale);
 #define MGT_FORMAT_ARG(idx)
 #endif
 
+namespace mygettext {
+
+const char* setlocale(int category, const char* locale);
+
 #undef gettext
-#define gettext mygettext
-const char* mygettext(const char* msgid) MGT_FORMAT_ARG(1);
+const char* gettext(const char* msgid) MGT_FORMAT_ARG(1);
 
 #undef bindtextdomain
-#define bindtextdomain mybindtextdomain
-const char* mybindtextdomain(const char* domainname, const char* dirname);
+const char* bindtextdomain(const char* domainname, const char* dirname);
 
 #undef textdomain
-#define textdomain mytextdomain
-const char* mytextdomain(const char* domainname);
+const char* textdomain(const char* domainname);
 
 #undef bind_textdomain_codeset
-#define bind_textdomain_codeset mybind_textdomain_codeset
-const char* mybind_textdomain_codeset(const char* domainname, const char* codeset);
+const char* bind_textdomain_codeset(const char* domainname, const char* codeset);
 
 /// Return translated text for given message (or unmodified text if not found)
 inline MGT_FORMAT_ARG(1) const char* _(const char* const txt)
@@ -56,11 +52,16 @@ inline const char* _(const std::string& txt)
 {
     return gettext(txt.c_str());
 }
-/// Return unmodified string (used when translation is done at other place (e.g. string constants)
+/// Return unmodified string (used when translation is done at other place, e.g. string constants)
 inline MGT_FORMAT_ARG(1) const char* gettext_noop(const char* const str)
 {
     return str;
 }
+
+} // namespace mygettext
+
+using mygettext::_;
+using mygettext::gettext_noop;
 
 #undef MGT_FORMAT_ARG
 

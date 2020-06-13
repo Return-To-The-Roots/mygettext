@@ -1,4 +1,4 @@
-// Copyright (c) 2017 - 2019 Settlers Freaks (sf-team at siedler25.org)
+// Copyright (c) 2017 - 2020 Settlers Freaks (sf-team at siedler25.org)
 //
 // This file is part of Return To The Roots.
 //
@@ -23,7 +23,7 @@ BOOST_AUTO_TEST_CASE(Parse)
     auto localeStrings = {"de_de.iso8859-1@var", "DE_DE.ISO8859-1@var", "DE-DE.ISO8859-1@var"};
     for(std::string str : localeStrings)
     {
-        LocaleInfo info;
+        mygettext::LocaleInfo info;
         info.parse(str);
         BOOST_TEST(info.getName() == str);
         BOOST_TEST(info.getLanguage() == "de");
@@ -37,7 +37,7 @@ BOOST_AUTO_TEST_CASE(Parse)
 BOOST_AUTO_TEST_CASE(ParseWithDefaults)
 {
     {
-        LocaleInfo info;
+        mygettext::LocaleInfo info;
         info.parse("de");
         BOOST_TEST(info.getLanguage() == "de");
         BOOST_TEST(info.getCountry() == "");
@@ -46,7 +46,7 @@ BOOST_AUTO_TEST_CASE(ParseWithDefaults)
         BOOST_TEST(info.getVariant() == "");
     }
     {
-        LocaleInfo info;
+        mygettext::LocaleInfo info;
         info.parse("de_DE");
         BOOST_TEST(info.getLanguage() == "de");
         BOOST_TEST(info.getCountry() == "DE");
@@ -55,7 +55,7 @@ BOOST_AUTO_TEST_CASE(ParseWithDefaults)
         BOOST_TEST(info.getVariant() == "");
     }
     {
-        LocaleInfo info;
+        mygettext::LocaleInfo info;
         info.parse("de.UTF-8");
         BOOST_TEST(info.getLanguage() == "de");
         BOOST_TEST(info.getCountry() == "");
@@ -64,7 +64,7 @@ BOOST_AUTO_TEST_CASE(ParseWithDefaults)
         BOOST_TEST(info.getVariant() == "");
     }
     {
-        LocaleInfo info;
+        mygettext::LocaleInfo info;
         info.parse("de@var");
         BOOST_TEST(info.getLanguage() == "de");
         BOOST_TEST(info.getCountry() == "");
@@ -73,7 +73,7 @@ BOOST_AUTO_TEST_CASE(ParseWithDefaults)
         BOOST_TEST(info.getVariant() == "var");
     }
     {
-        LocaleInfo info;
+        mygettext::LocaleInfo info;
         info.parse("de_DE.UTF-8");
         BOOST_TEST(info.getLanguage() == "de");
         BOOST_TEST(info.getCountry() == "DE");
@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_CASE(ParseWithDefaults)
         BOOST_TEST(info.getVariant() == "");
     }
     {
-        LocaleInfo info;
+        mygettext::LocaleInfo info;
         info.parse("de_DE@var");
         BOOST_TEST(info.getLanguage() == "de");
         BOOST_TEST(info.getCountry() == "DE");

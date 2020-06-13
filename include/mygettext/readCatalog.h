@@ -1,4 +1,4 @@
-// Copyright (c) 2005 - 2020 Settlers Freaks (sf-team at siedler25.org)
+// Copyright (c) 2017 - 2020 Settlers Freaks (sf-team at siedler25.org)
 //
 // This file is part of Return To The Roots.
 //
@@ -15,35 +15,16 @@
 // You should have received a copy of the GNU General Public License
 // along with Return To The Roots. If not, see <http://www.gnu.org/licenses/>.
 
-#include "mygettext/mygettext.h"
-#include "mygettext/gettext.h"
+#ifndef mygettext_read_catalog_h__
+#define mygettext_read_catalog_h__
+
+#include <map>
+#include <string>
 
 namespace mygettext {
-static GetText __gettext;
 
-const char* setlocale(int /*category*/, const char* locale)
-{
-    return __gettext.setLocale(locale);
-}
-
-const char* gettext(const char* msgid)
-{
-    return __gettext.get(msgid);
-}
-
-const char* bindtextdomain(const char* domainname, const char* dirname)
-{
-    return __gettext.setCatalogDir(domainname, dirname);
-}
-
-const char* textdomain(const char* domainname)
-{
-    return __gettext.setCatalog(domainname);
-}
-
-const char* bind_textdomain_codeset(const char* /*domainname*/, const char* codeset)
-{
-    return __gettext.setCodepage(codeset);
-}
+std::map<std::string, std::string> readCatalog(const std::string& catalogFilepath, const std::string& targetCodepage);
 
 } // namespace mygettext
+
+#endif // mygettext_read_catalog_h__
