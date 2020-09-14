@@ -14,8 +14,6 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Return To The Roots. If not, see <http://www.gnu.org/licenses/>.
-#ifndef MYGETTEXT_H_INCLUDED
-#define MYGETTEXT_H_INCLUDED
 
 #pragma once
 
@@ -64,5 +62,3 @@ using mygettext::_;
 using mygettext::gettext_noop;
 
 #undef MGT_FORMAT_ARG
-
-#endif // !MYGETTEXT_H_INCLUDED

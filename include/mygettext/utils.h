@@ -15,8 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Return To The Roots. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef utils_h__
-#define utils_h__
+#pragma once
 
 #include <string>
 #include <vector>
@@ -29,5 +28,3 @@ std::vector<std::string> getPossibleFoldersForLangCode(const std::string& langCo
 std::vector<std::string> getPossibleFoldersForLocale(const LocaleInfo& locale);
 
 } // namespace mygettext
-
-#endif // utils_h__

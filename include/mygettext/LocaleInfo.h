@@ -4,8 +4,7 @@
 //  http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#ifndef LocaleInfo_h__
-#define LocaleInfo_h__
+#pragma once
 
 #include <string>
 
@@ -35,5 +34,3 @@ private:
     void parse_from_variant(std::string const& locale_name);
 };
 } // namespace mygettext
-
-#endif // LocaleInfo_h__

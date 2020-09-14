@@ -15,8 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Return To The Roots. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef mygettext_read_catalog_h__
-#define mygettext_read_catalog_h__
+#pragma once
 
 #include <map>
 #include <string>
@@ -26,5 +25,3 @@ namespace mygettext {
 std::map<std::string, std::string> readCatalog(const std::string& catalogFilepath, const std::string& targetCodepage);
 
 } // namespace mygettext
-
-#endif // mygettext_read_catalog_h__
