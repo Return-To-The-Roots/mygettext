@@ -20,9 +20,9 @@
 #include <string>
 
 #ifdef __GNUC__
-#define MGT_FORMAT_ARG(idx) __attribute__((format_arg(1)))
+#    define MGT_FORMAT_ARG(idx) __attribute__((format_arg(1)))
 #else
-#define MGT_FORMAT_ARG(idx)
+#    define MGT_FORMAT_ARG(idx)
 #endif
 
 namespace mygettext {

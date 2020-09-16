@@ -130,8 +130,9 @@ std::map<std::string, std::string> readCatalog(const std::string& catalogFilepat
             if(!file.read(readBuffer.data(), entryDescriptor.valueLen))
                 throw std::runtime_error("Failed to read entry");
 
-            iconvBuffer.resize(entryDescriptor.valueLen * 6); // UTF needs at most 6 times the size per char, so this should be enough
-            size_t iLength = entryDescriptor.valueLen;        // Don't count terminating zero
+            iconvBuffer.resize(entryDescriptor.valueLen
+                               * 6); // UTF needs at most 6 times the size per char, so this should be enough
+            size_t iLength = entryDescriptor.valueLen; // Don't count terminating zero
             size_t oLength = iconvBuffer.size();
 
             char* input = readBuffer.data();

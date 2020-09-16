@@ -9,12 +9,12 @@
 #include <cstdlib>
 #include <cstring>
 #if defined(BOOST_WINDOWS) || defined(__CYGWIN__)
-#ifndef NOMINMAX
-#define NOMINMAX
-#endif
-#include <windows.h>
-#include <array>
-#define BOOST_LOCALE_USE_WIN32_API
+#    ifndef NOMINMAX
+#        define NOMINMAX
+#    endif
+#    include <windows.h>
+#    include <array>
+#    define BOOST_LOCALE_USE_WIN32_API
 #endif
 
 namespace mygettext {
