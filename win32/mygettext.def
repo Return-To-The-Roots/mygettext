@@ -1,6 +1,0 @@
-EXPORTS
-	mysetlocale
-	mygettext
-	mybindtextdomain
-	mytextdomain
-	mybind_textdomain_codeset

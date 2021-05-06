@@ -1,3 +1,7 @@
+# Copyright (C) 2005 - 2021 Settlers Freaks <sf-team at siedler25.org>
+#
+# SPDX-License-Identifier: GPL-2.0-or-later
+
 find_package(Iconv REQUIRED)
 find_package(Boost 1.55 REQUIRED COMPONENTS filesystem)
 
