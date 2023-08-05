@@ -20,7 +20,7 @@ add_library(mygettext STATIC ${SRC_FILES})
 target_include_directories(mygettext PUBLIC include)
 target_include_directories(mygettext SYSTEM PRIVATE ${ICONV_INCLUDE_DIR})
 target_link_libraries(mygettext PRIVATE ${ICONV_LIBRARY} Boost::filesystem Boost::nowide PUBLIC Boost::disable_autolinking)
-target_compile_features(mygettext PUBLIC cxx_std_14)
+target_compile_features(mygettext PUBLIC cxx_std_17)
 set_target_properties(mygettext PROPERTIES CXX_EXTENSIONS OFF)
 
 include(EnableWarnings)
