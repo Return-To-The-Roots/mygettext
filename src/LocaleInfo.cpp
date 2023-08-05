@@ -17,7 +17,7 @@
 #endif
 
 namespace mygettext {
-namespace conv { namespace impl {
+namespace conv::impl {
     static std::string normalize_encoding(char const* ccharset)
     {
         std::string charset;
@@ -32,7 +32,7 @@ namespace conv { namespace impl {
         }
         return charset;
     }
-}} // namespace conv::impl
+} // namespace conv::impl
 
 static std::string get_system_locale(bool use_utf8)
 {
