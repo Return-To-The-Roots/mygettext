@@ -9,12 +9,12 @@ get_filename_component(parentPath ${CMAKE_CURRENT_SOURCE_DIR} DIRECTORY)
 set(includePath ${parentPath}/include)
 
 set(SRC_FILES
-	src/mygettext.cpp include/mygettext/mygettext.h
-	src/gettext.cpp include/mygettext/gettext.h
-	src/readCatalog.cpp include/mygettext/readCatalog.h
-	src/utils.cpp include/mygettext/utils.h
-	src/LocaleInfo.cpp include/mygettext/LocaleInfo.h
-	)
+    src/mygettext.cpp include/mygettext/mygettext.h
+    src/gettext.cpp include/mygettext/gettext.h
+    src/readCatalog.cpp include/mygettext/readCatalog.h
+    src/utils.cpp include/mygettext/utils.h
+    src/LocaleInfo.cpp include/mygettext/LocaleInfo.h
+    )
 add_library(mygettext STATIC ${SRC_FILES})
 
 target_include_directories(mygettext PUBLIC include)
