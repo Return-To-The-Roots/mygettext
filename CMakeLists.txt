@@ -3,7 +3,10 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 
 find_package(Iconv REQUIRED)
-find_package(Boost 1.55 REQUIRED COMPONENTS filesystem)
+
+if(NOT TARGET Boost::filesystem)
+    find_package(Boost 1.55 REQUIRED COMPONENTS filesystem)
+endif()
 
 get_filename_component(parentPath ${CMAKE_CURRENT_SOURCE_DIR} DIRECTORY)
 set(includePath ${parentPath}/include)
